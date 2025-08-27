@@ -1,29 +1,22 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Stack } from "expo-router";
+import { screenOptions } from "../components/headerLeft";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: "#252525" },
+        headerTintColor: "white",
+        headerTitleStyle: { fontWeight: "bold" },
+      }}
+    >
+      {/* Root file is Startup once finished with everything */}
+      
+      <Stack.Screen name="Dashboard" options={{ headerShown: false }} />
+      <Stack.Screen name="StartUp" options={{ headerShown: false }} />
+      <Stack.Screen name="LoginPage" options={{ headerShown: false }} />
+      <Stack.Screen name="AddMedicine" options={{headerShown: false}}/>
+      <Stack.Screen name="InventoryPage" options={{ headerShown: false }} />
+    </Stack>
   );
 }

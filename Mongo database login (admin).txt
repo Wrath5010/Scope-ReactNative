@@ -1,0 +1,2 @@
+Mongo database login (admin):
+owner1234
