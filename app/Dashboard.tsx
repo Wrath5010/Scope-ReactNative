@@ -46,7 +46,7 @@ export default function Dashboard() {
         justifyContent: "space-around",
         padding: 10,}}>
 
-            <Pressable style={styles.boxes} onPress={() => console.log("Box 3 tapped")}>
+            <Pressable style={styles.boxes} onPress={() => router.push("/Notification")}>
                 <Image source={require('@/assets/images/Notification.png')} style={styles.icons}></Image>
                 <Text style={styles.textbox}>Notification</Text>
             </Pressable>
@@ -61,12 +61,12 @@ export default function Dashboard() {
         justifyContent: "space-around",
         padding: 10,}}>
 
-            <Pressable style={styles.boxes} onPress={() => console.log("Box 5 tapped")}>
+            <Pressable style={styles.boxes} onPress={() => router.push("/Statistics")}>
                 <Image source={require('@/assets/images/Statistics.png')} style={styles.icons}></Image>
                 <Text style={styles.textbox}>Statistics</Text>
             </Pressable>
 
-            <Pressable style={styles.boxes} onPress={() => console.log("Box 6 tapped")}>
+            <Pressable style={styles.boxes} onPress={() => router.push("/Activitylog")}>
                 <Image source={require('@/assets/images/Activity-Log.png')} style={styles.icons}></Image>
                 <Text style={styles.textbox}>Activity Log</Text>
             </Pressable>

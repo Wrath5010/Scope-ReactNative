@@ -1,79 +1,102 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, FlatList, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import LoginScreen from "./LoginPage";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from '@react-navigation/native';
 
-export default function Addmedicine(){
-    const router = useRouter();
 
-    return(
-        <View style={styles.container}>
-            <View>
-                <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={28} color="white" />
-                </Pressable>
+export default function AddMedicine() {
+  const router = useRouter();
+  const navigation = useNavigation();
 
-                <Text style={styles.title}>Enter New Medicine</Text>
-                <View style={styles.SecondCont}>
-                    <TextInput style={styles.inputlong} placeholder="Product Name"></TextInput>
+  const data = ['Apples', 'Bananas', 'Cherries', 'Oranges', 'Grapes'];
 
-                    <View style= {styles.RowContainer}>
-                        <TextInput style={styles.medinput} placeholder="Types of Medicine"></TextInput>
-                        <TextInput style={styles.priceinput} placeholder="Price"></TextInput>
-                    </View>
-                </View>
-            </View>
+  return (
+    <SafeAreaView style={{backgroundColor: '#252525'}}>
+    <View style={styles.container}>
+      <Pressable onPress={() => router.back()} style={styles.backBtn}>
+        <Ionicons name="arrow-back" size={28} color="white" />
+      </Pressable>
+
+      <Text style={styles.title}>Add medicine</Text>
+
+      <View style={styles.SecondCont}>
+        <TextInput style={styles.search} placeholder="Product Name"></TextInput>
+      
+        <View style= {styles.RowContainer}>
+          {/* make them modal tags instead of input*/}
+          <TextInput style={styles.filter} placeholder="filter"></TextInput>
+          <TextInput style={styles.sort} placeholder="Sort"></TextInput>
         </View>
-    )
+      </View>
+
+      <Text>hello</Text>
+      
+
+    </View>
+    </SafeAreaView>
+  );
 }
 
-const styles = StyleSheet.create ({
+const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#252525',
-        padding: 30,
-        justifyContent: 'flex-start'
+      height: '100%',
+      backgroundColor: '#252525',
+      alignItems: 'center'
     },
     backBtn: {
-        position: "absolute",
-        top: 40,
-        left: 0,
-        zIndex: 10,
+    position: "absolute",
+    top: 28,
+    left: 20,
+    padding: 8,
+    zIndex: 10,
+    },
+    title:{
+      alignSelf: 'center',
+      marginTop: 35,
+      fontSize: 26,
+      color: 'white',
+      fontWeight: 'bold'
+    },
+    search: {
+      height: 50,
+      width: 320,
+      backgroundColor: 'white',
+      borderRadius: 12
     },
     SecondCont:{
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 30
-    },
-    title: {
-        fontSize: 26,
-        color: 'white',
-        marginTop: 100,
-        marginBottom: 20,
-    },
-    inputlong: {
-        height: 60,
-        width: 320,
-        backgroundColor: 'white',
-        borderRadius: 12
+        gap: 10,
+        marginTop: 20,
+        width: 320
     },
     RowContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: 8,
+        flex: 1
     },
-    medinput: {
+    filter: {
         flex: 1,
-        height: 60,
-        width: 50,
+        height: 50,
         backgroundColor: 'white',
         borderRadius: 12
     },
-    priceinput: {
-        height: 60,
-        width: 100,
+    sort: {
+        flex: 1,
+        height: 50,
         backgroundColor: 'white',
         borderRadius: 12
-    }
-})
+    },
+    item: { 
+      padding: 15, 
+      borderBottomWidth: 1, 
+      borderBottomColor: '#ccc' 
+    },
+    text: { 
+      fontSize: 18 
+    },
+
+});

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, Image } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ export default function Inventory() {
   const router = useRouter();
   const navigation = useNavigation();
 
+  const data = ['Apples', 'Bananas', 'Cherries', 'Oranges', 'Grapes'];
 
   return (
     <SafeAreaView style={{backgroundColor: '#252525'}}>
@@ -30,6 +31,16 @@ export default function Inventory() {
         </View>
       </View>
 
+      <FlatList
+        data={data}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.text}>{item}</Text>
+          </View>
+        )}
+      />
+
     </View>
     </SafeAreaView>
   );
@@ -43,7 +54,7 @@ const styles = StyleSheet.create({
     },
     backBtn: {
     position: "absolute",
-    top: 30,
+    top: 28,
     left: 20,
     padding: 8,
     zIndex: 10,
@@ -64,13 +75,15 @@ const styles = StyleSheet.create({
     SecondCont:{
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 30
+        gap: 10,
+        marginTop: 20,
+        width: 320
     },
     RowContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: 8,
-        width: 300
+        flex: 1
     },
     filter: {
         flex: 1,
@@ -83,7 +96,14 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: 'white',
         borderRadius: 12
-    }
-    
+    },
+    item: { 
+      padding: 15, 
+      borderBottomWidth: 1, 
+      borderBottomColor: '#ccc' 
+    },
+    text: { 
+      fontSize: 18 
+    },
 
 });
