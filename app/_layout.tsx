@@ -11,12 +11,11 @@ export default function RootLayout() {
       }}
     >
       {/* Root file is Startup once finished with everything */}
-      
-      <Stack.Screen name="Dashboard" options={{ headerShown: false }} />
+      <Stack.Screen name="InventoryPage" options={{ headerShown: false }} />
       <Stack.Screen name="StartUp" options={{ headerShown: false }} />
+      <Stack.Screen name="Dashboard" options={{ headerShown: false }} />
       <Stack.Screen name="LoginPage" options={{ headerShown: false }} />
       <Stack.Screen name="AddMedicine" options={{headerShown: false}}/>
-      <Stack.Screen name="InventoryPage" options={{ headerShown: false }} />
       <Stack.Screen name="Notification" options={{headerShown: false}}/>
       <Stack.Screen name="Statistics" options={{headerShown: false}}/>
       <Stack.Screen name="Activitylog" options={{headerShown: false}}/>
