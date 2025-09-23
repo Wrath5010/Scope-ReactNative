@@ -3,12 +3,52 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert, Image } from "reac
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import SideMenu from "@/components/ui/SideMenu";
 
 export default function Dashboard() {
-  const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+    const router = useRouter();
+    const [menuVisible, setMenuVisible] = useState(false);
 
+    const menuItems = [
+    {label: "Add Medicine", onPress: () => router.push("/AddMedicine"), 
+    icon: (
+      <Image
+        source={require("@/assets/images/add-medicine.png")}
+        style={styles.menuimages}
+      />)
+    },
+    {label: "Delete Medicine", onPress: () => router.push("/DeletePage"),
+    icon: (
+      <Image
+        source={require("@/assets/images/Delete-medicine.png")}
+        style={styles.menuimages}
+      />)},
+    { label: "Inventory", onPress: () => router.push("/InventoryPage"), 
+    icon: (
+        <Image
+        source={require("@/assets/images/Inventory.png")}
+        style={styles.menuimages}
+      />)
+    },
+    { label: "Notification", onPress: () => router.push("/Notification"),
+    icon: (
+        <Image source={require("@/assets/images/Notification.png")}
+        style={styles.menuimages}/>
+    )
+     },
+    { label: "Statistics", onPress: () => router.push("/Statistics"),
+    icon: (
+        <Image source={require("@/assets/images/Statistics.png")}
+        style={styles.menuimages}/>
+    )
+     },
+     { label: "Activity Log", onPress: () => router.push("/Activitylog"),
+    icon: (
+        <Image source={require("@/assets/images/Activity-Log.png")}
+        style={styles.menuimages}/>
+    )
+     },
+  ];
 
   return (
     <SafeAreaView style={{backgroundColor: '#252525'}}>
@@ -16,9 +56,18 @@ export default function Dashboard() {
 
         <View style={{paddingLeft: 10, gap: 20}}>
             <View style={styles.rowcontainer}>
-                <Pressable style={styles.menubtn} onPress={() => console.log('menu btn working')}>
-                    <Image source={require('@/assets/images/Hamburger-menu.png')} style={styles.menu}></Image>
+
+                {/* fix the styling here, pressable and sidemenu should be group in one container (column), then image should seperated. basically a row container -> 2 child container -> child 1 should be column inside & child 2 is just itself with minor adjustsments*/}
+                <Pressable style={styles.menubtn} onPress={() => setMenuVisible(true)}>
+                <Image source={require('@/assets/images/Hamburger-menu.png')} style={styles.menu}/>
                 </Pressable>
+
+                <SideMenu
+                visible={menuVisible}
+                onClose={() => setMenuVisible(false)}
+                menuItems={menuItems}
+                />
+
                 <Image style={styles.logo} source={require('@/assets/images/icon.png')}></Image>
             </View>
 
@@ -37,7 +86,7 @@ export default function Dashboard() {
                 <Text style={styles.textbox}>Add medicine</Text>
             </Pressable>
 
-            <Pressable style={styles.boxes} onPress={() => console.log("Box 2 tapped")}>
+            <Pressable style={styles.boxes} onPress={() => router.push("/DeletePage")}>
                 <Image source={require('@/assets/images/Delete-medicine.png')} style={styles.icons}></Image>
                 <Text style={styles.textbox}>Delete medicine</Text>
             </Pressable>
@@ -138,6 +187,9 @@ const styles = StyleSheet.create({
     icons: {
         height: 100,
         resizeMode: 'center'
-    }
+    },
+    menuimages: { 
+        width: 30, 
+        height: 30 }
 
 });

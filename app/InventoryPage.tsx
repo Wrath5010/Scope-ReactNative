@@ -1,53 +1,78 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { View, Text, TextInput, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import { Colors } from "react-native/Libraries/NewAppScreen";
+import NavigationBar from "@/components/ui/NavigationBar";
+
 
 const categories = [
-  "All",
-  "Antibiotics",
-  "Painkillers",
-  "Cough & Cold",
-  "Allergy",
-  "Vitamins & Supplements",
-  "Digestive Health",
-  "Skin Care",
-  "Cardiovascular",
-  "Diabetes",
+  "All", "Antibiotics", "Painkillers", "Cough & Cold", "Allergy", 
+  "Vitamins & Supplements", "Digestive Health", "Skin Care", "Cardiovascular", "Diabetes",
 ];
 
-const sortOptions = ["None", "A-Z", "Z-A", "Newest", "Oldest"];
-
-const inventoryData = [
-  { id: '1', name: 'Paracetamol', quantity: 20 },
-  { id: '2', name: 'Ibuprofen', quantity: 15 },
-  { id: '3', name: 'Vitamin C', quantity: 10 },
-  { id: '4', name: 'Amoxicillin', quantity: 5 },
-  { id: '5', name: 'Amoxicillin', quantity: 5 },
-  { id: '6', name: 'Amoxicillin', quantity: 5 },
-  { id: '7', name: 'Amoxicillin', quantity: 5 },
-  { id: '8', name: 'Amoxicillin', quantity: 5 },
-  { id: '9', name: 'Amoxicillin', quantity: 5 },
-  { id: '10', name: 'Amoxicillin', quantity: 5 },
-];
+const sortOptions = ["None", "A-Z", "Z-A", "High Stock", "Low Stock", "Expiring Soon", "Expiring Later"];
 
 export default function Inventory() {
   const router = useRouter();
-  const navigation = useNavigation();
-
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterVisible, setFilterVisible] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
-
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [selectedSort, setSelectedSort] = useState("None");
 
-  const data = ["Apples", "Bananas", "Cherries", "Oranges", "Grapes"];
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+
+  useEffect(() => {
+    getMedicines()
+      .then(setMedicines)
+      .catch(() => Alert.alert("Error", "Failed to fetch medicines."));
+  }, []);
+
+
+  // Filter, search, and sort
+  const displayedData = useMemo(() => {
+    let result = [...medicines];
+
+    // Category filter
+    if (selectedFilter !== "All") {
+      result = result.filter(item => item.category === selectedFilter);
+    }
+
+    // Search
+    if (searchQuery.trim() !== "") {
+      result = result.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Sorting
+    switch (selectedSort) {
+      case "A-Z":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "Z-A":
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "High Stock":
+        result.sort((a, b) => (b.quantity ?? 0) - (a.quantity ?? 0));
+        break;
+      case "Low Stock":
+        result.sort((a, b) => (a.quantity ?? 0) - (b.quantity ?? 0));
+        break;
+      case "Expiring Soon":
+        result.sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+        break;
+      case "Expiring Later":
+        result.sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime());
+        break;
+    }
+
+    return result;
+  }, [medicines, searchQuery, selectedFilter, selectedSort]);
 
   return (
-    <SafeAreaView style={{ backgroundColor: "#252525" }}>
+    <SafeAreaView style={{ backgroundColor: "#252525", flex: 1 }}>
       <View style={styles.container}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color="white" />
@@ -56,7 +81,13 @@ export default function Inventory() {
         <Text style={styles.title}>Inventory</Text>
 
         <View style={styles.SecondCont}>
-          <TextInput style={styles.search} placeholder="Product Name" placeholderTextColor="#888" />
+          <TextInput
+            style={styles.search}
+            placeholder="Product Name"
+            placeholderTextColor="#888"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
 
           <View style={styles.RowContainer}>
             {/* Filter Button */}
@@ -71,15 +102,10 @@ export default function Inventory() {
           </View>
         </View>
 
-
-        <Modal visible={filterVisible} transparent animationType="slide">
+        {/* Filter Modal */}
+        <Modal visible={filterVisible} transparent animationType="fade">
           <View style={styles.modalOverlay}>
-            
-            <Pressable
-              style={StyleSheet.absoluteFill} 
-              onPress={() => setFilterVisible(false)}
-            />
-
+            <Pressable style={StyleSheet.absoluteFill} onPress={() => setFilterVisible(false)} />
             <View style={styles.modalBox}>
               <Text style={styles.modalTitle}>Filter by Category</Text>
               <View style={styles.chipContainer}>
@@ -99,20 +125,14 @@ export default function Inventory() {
                 ))}
               </View>
             </View>
-            <Text style={{color: 'white', marginTop: 20}}>Tap outside to exit</Text>
+            <Text style={{ color: "white", marginTop: 20 }}>Tap outside to exit</Text>
           </View>
         </Modal>
 
-
-        <Modal visible={sortVisible} transparent animationType="slide">
+        {/* Sort Modal */}
+        <Modal visible={sortVisible} transparent animationType="fade">
           <View style={styles.modalOverlay}>
-            {/* Outer Pressable to close modal when tapping outside */}
-            <Pressable
-              style={StyleSheet.absoluteFill}
-              onPress={() => setSortVisible(false)}
-            />
-
-            {/* White box with chips */}
+            <Pressable style={StyleSheet.absoluteFill} onPress={() => setSortVisible(false)} />
             <View style={styles.modalBox}>
               <Text style={styles.modalTitle}>Sort by</Text>
               <View style={styles.chipContainer}>
@@ -125,174 +145,90 @@ export default function Inventory() {
                       setSortVisible(false);
                     }}
                   >
-                    <Text
-                      style={[styles.chipText, selectedSort === option && styles.chipTextSelected]}
-                    >
+                    <Text style={[styles.chipText, selectedSort === option && styles.chipTextSelected]}>
                       {option}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
-            <Text style={{color: 'white', marginTop: 20}}>Tap outside to exit</Text>
+            <Text style={{ color: "white", marginTop: 20 }}>Tap outside to exit</Text>
           </View>
         </Modal>
 
         <FlatList
-          data={inventoryData}
-          keyExtractor={(item) => item.id}
-          style={{marginTop: 60}}
-          contentContainerStyle={{ paddingBottom: 100 }} // extra space at bottom
-          renderItem={({ item }) => (
+        data={displayedData}
+        keyExtractor={(item, index) => item._id ? item._id.toString() : index.toString()}
+        style={{ marginTop: 55 }}
+        contentContainerStyle={{ paddingBottom: 200 }}
+        renderItem={({ item }: { item: Medicine }) => {
+          const today = new Date();
+          const expiry = new Date(item.expiryDate);
+          const daysToExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+          let expiryText: string = item.expiryDate; // explicitly typed
+          let expiryColor = "#555";
+
+          if (daysToExpiry <= 30) {
+            expiryColor = "#dc3939"; // red
+            expiryText += " (Near Expiry)";
+          } else if (daysToExpiry <= 90) {
+            expiryColor = "#e6a23c"; // orange
+            expiryText += " (Expiring Soon)";
+          }
+
+          return (
             <View style={lists.listItem}>
-              <Text style={lists.itemName}>{item.name}</Text>
-              <Text style={lists.itemQty}>Qty: {item.quantity}</Text>
-              <Text>Hello</Text>
+              <View style={lists.leftSection}>
+                <Text style={lists.itemName}>{item.name}</Text>
+                <Text style={lists.itemText}>Category: {item.category}</Text>
+                <Text style={lists.itemText}>Dosage: {item.dosage ?? "-"}</Text>
+                <Text style={lists.itemText}>Manufacturer: {item.manufacturer ?? "-"}</Text>
+              </View>
+
+              <View style={lists.rightSection}>
+                <Text style={lists.itemText}>Qty: {item.quantity}</Text>
+                <Text style={lists.itemText}>Stock: {item.stockQuantity ?? 0}</Text>
+                <Text style={lists.itemText}>Price: ${item.price}</Text>
+                <Text style={[lists.itemText, { color: expiryColor }]}>Expiry: {expiryText}</Text>
+              </View>
             </View>
-          )}
-        />
+          );
+        }}
+      />
 
       </View>
+
+      <NavigationBar />
     </SafeAreaView>
   );
 }
 
+// === Styles (unchanged) ===
 const styles = StyleSheet.create({
-  container: {
-    height: "100%",
-    backgroundColor: "#252525",
-    alignItems: "center",
-  },
-  backBtn: {
-    position: "absolute",
-    top: 28,
-    left: 20,
-    padding: 8,
-    zIndex: 10,
-  },
-  title: {
-    alignSelf: "center",
-    marginTop: 35,
-    fontSize: 26,
-    color: "white",
-    fontWeight: "bold",
-  },
-  search: {
-    height: 50,
-    width: 320,
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-  },
-  SecondCont: {
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    marginTop: 20,
-    width: 320,
-  },
-  RowContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-    flex: 1,
-  },
-  filter: {
-    flex: 1,
-    height: 50,
-    backgroundColor: "#3A3A3A",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  sort: {
-    flex: 1,
-    height: 50,
-    backgroundColor: "#3A3A3A",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  btnText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  item: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  text: {
-    fontSize: 18,
-    color: "white",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalBox: {
-    width: 320,
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  chipContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  chip: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 20,
-  },
-  chipSelected: {
-    backgroundColor: "#252525",
-  },
-  chipText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  chipTextSelected: {
-    color: "white",
-    fontWeight: "bold",
-  },
+  container: { flex: 1, backgroundColor: "#252525", alignItems: "center" },
+  backBtn: { position: "absolute", top: 28, left: 20, padding: 8, zIndex: 10 },
+  title: { alignSelf: "center", marginTop: 35, fontSize: 26, color: "white", fontWeight: "bold" },
+  search: { height: 50, width: "100%", backgroundColor: "white", borderRadius: 12, paddingHorizontal: 12, marginTop: 15 },
+  SecondCont: { justifyContent: "center", alignItems: "center", gap: 10, marginTop: 20, width: "85%" },
+  RowContainer: { flexDirection: "row", justifyContent: "space-between", gap: 8, flex: 1 },
+  filter: { flex: 1, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", alignItems: "center" },
+  sort: { flex: 1, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", alignItems: "center" },
+  btnText: { color: "white", fontSize: 16, fontWeight: "500", textAlign: "center" },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.79)", justifyContent: "center", alignItems: "center" },
+  modalBox: { width: 320, backgroundColor: "white", borderRadius: 12, padding: 20 },
+  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 15 },
+  chipContainer: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  chip: { paddingVertical: 8, paddingHorizontal: 14, backgroundColor: "#f0f0f0", borderRadius: 20 },
+  chipSelected: { backgroundColor: "#252525" },
+  chipText: { fontSize: 16, color: "#333" },
+  chipTextSelected: { color: "white", fontWeight: "bold" },
 });
 
-
 const lists = StyleSheet.create({
-    listItem: {
-  backgroundColor: 'white',
-  padding: 15,
-  borderRadius: 12,
-  marginVertical: 4,
-  width: '92%',
-  alignSelf: 'center',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 2, 
-},
-itemName: {
-  fontSize: 16,
-  fontWeight: '500',
-},
-itemQty: {
-  fontSize: 16,
-  fontWeight: '500',
-  color: '#555',
-},
-
-})
+  listItem: { backgroundColor: "white", padding: 20, borderRadius: 12, marginVertical: 5, width: "92%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  leftSection: { flex: 2, justifyContent: "space-between", gap: 10 },
+  rightSection: { flex: 1, justifyContent: "space-between", alignItems: "flex-end", gap: 10 },
+  itemName: { fontSize: 16, fontWeight: "500" },
+  itemText: { fontSize: 14, color: "#555" },
+});

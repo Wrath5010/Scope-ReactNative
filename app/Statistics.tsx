@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
+import NavigationBar from "@/components/ui/NavigationBar";
 
 
 export default function Statistics() {
@@ -20,7 +21,7 @@ export default function Statistics() {
         
         <Text style={styles.title}>Statistics</Text>
 
-        
+        <NavigationBar></NavigationBar>
 
     </View>
     </SafeAreaView>

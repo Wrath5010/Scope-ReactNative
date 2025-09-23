@@ -1,24 +1,28 @@
-import { Stack } from "expo-router";
-import { screenOptions } from "../components/headerLeft";
+import { Background } from "@react-navigation/elements";
+import { DefaultTheme } from "@react-navigation/native";
+import { Stack, useRouter } from "expo-router";
+import { View } from "react-native";
 
 export default function RootLayout() {
+
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "#252525" },
-        headerTintColor: "white",
-        headerTitleStyle: { fontWeight: "bold" },
+        headerShown: false,
+        animation: "slide_from_right",
+        gestureEnabled: true,
+        contentStyle: { backgroundColor: "#252525" },
       }}
     >
-      {/* Root file is Startup once finished with everything */}
-      <Stack.Screen name="InventoryPage" options={{ headerShown: false }} />
-      <Stack.Screen name="StartUp" options={{ headerShown: false }} />
-      <Stack.Screen name="Dashboard" options={{ headerShown: false }} />
-      <Stack.Screen name="LoginPage" options={{ headerShown: false }} />
-      <Stack.Screen name="AddMedicine" options={{headerShown: false}}/>
-      <Stack.Screen name="Notification" options={{headerShown: false}}/>
-      <Stack.Screen name="Statistics" options={{headerShown: false}}/>
-      <Stack.Screen name="Activitylog" options={{headerShown: false}}/>
+      <Stack.Screen name="Dashboard"/>
+      <Stack.Screen name="AddMedicine" />
+      <Stack.Screen name="LoginPage" />
+      <Stack.Screen name="Statistics" />
+      <Stack.Screen name="StartUp" />
+      <Stack.Screen name="InventoryPage" />
+      <Stack.Screen name="Notification" />
+      <Stack.Screen name="Activitylog" />
+      <Stack.Screen name="DeletePage"/>
     </Stack>
   );
 }
