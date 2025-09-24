@@ -1,6 +1,14 @@
 import React, { useState } from "react";
-import {View,Text,TextInput,Pressable,StyleSheet,Alert,ScrollView,} from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import CategorySelector from "@/components/ui/CategorySelector";
@@ -8,6 +16,18 @@ import DosageSelector from "@/components/ui/DosageSelector";
 import DatePicker from "@/components/ui/DatePicker";
 import NavigationBar from "@/components/ui/NavigationBar";
 import Confirmation from "@/components/ui/Confirmation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface MedicineData {
+  name: string;
+  category: string;
+  price: string;
+  dosage: string;
+  quantity: string;
+  manufacturer: string;
+  stockQuantity: number;
+  expiryDate: Date | null;
+}
 
 export default function AddMedicine() {
   const router = useRouter();
@@ -18,15 +38,24 @@ export default function AddMedicine() {
   const [price, setPrice] = useState("");
   const [dosage, setDosage] = useState("Select Type");
   const [dosageVisible, setDosageVisible] = useState(false);
-  const [manufacturer, setManu] = useState("");
-  const [quantity, setQuantitydosage] = useState("");
+  const [manufacturer, setManufacturer] = useState("");
+  const [quantity, setQuantity] = useState("");
   const [stockQuantity, setStockQuantity] = useState(0);
   const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const dosages = ["Tablet", "Capsule", "Syrup", "Injection", "Ointment"];
-
-  const categories = ["Antibiotics", "Painkillers", "Cough & Cold", "Allergy", "Vitamins & Supplements", "Digestive Health", "Skin Care", "Cardiovascular", "Diabetes"];
+  const categories = [
+    "Antibiotics",
+    "Painkillers",
+    "Cough & Cold",
+    "Allergy",
+    "Vitamins & Supplements",
+    "Digestive Health",
+    "Skin Care",
+    "Cardiovascular",
+    "Diabetes",
+  ];
 
   const dosageUnits: Record<string, string> = {
     Tablet: "pcs",
@@ -36,73 +65,96 @@ export default function AddMedicine() {
     Ointment: "g",
   };
 
-  const medicineData = {
-  name,
-  category,
-  price,
-  dosage,
-  quantity,
-  manufacturer,
-  stockQuantity,
-  expiryDate,
-};
+  const medicineData: MedicineData = {
+    name,
+    category,
+    price,
+    dosage,
+    quantity,
+    manufacturer,
+    stockQuantity,
+    expiryDate,
+  };
 
-  // Handle Confirm button
   const handleAddMedicine = async () => {
-    if (
-      !name ||
-      category === "Select Category" ||
-      !price ||
-      dosage === "Select Type" ||
-      !quantity ||
-      !manufacturer ||
-      !expiryDate
-    ) {
-      Alert.alert("Error", "Please fill in all required fields.");
+  if (
+    !name ||
+    category === "Select Category" ||
+    !price ||
+    dosage === "Select Type" ||
+    !quantity ||
+    !manufacturer ||
+    !expiryDate
+  ) {
+    Alert.alert("Error", "Please fill in all required fields.");
+    return;
+  }
+
+  try {
+    // Get JWT token from AsyncStorage
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      Alert.alert("Error", "You must be logged in to add medicine.");
       return;
     }
 
-    try {
-      const response = await fetch("http://192.168.68.102:5000/medicines", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          category,
-          price: Number(price),
-          dosage,
-          quantity: Number(quantity),
-          manufacturer,
-          stockQuantity,
-          expiryDate,
-        }),
-      });
+    const payload = {
+      name,
+      category,
+      price: Number(price),
+      dosage,
+      quantity: Number(quantity),
+      manufacturer,
+      stockQuantity: Number(stockQuantity),
+      expiryDate: expiryDate.toISOString(),
+    };
 
-      if (response.ok) {
-        Alert.alert("Success", "Medicine added successfully!");
-        router.push("/InventoryPage");
-      } else {
-        const errorData = await response.json();
-        Alert.alert(
-          "Error",
-          "Failed to add medicine: " + (errorData.message || "Unknown error")
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Failed to add medicine. Please try again.");
+    console.log("Payload:", payload); // Debug: check before sending
+
+    const response = await fetch("http://192.168.68.116:5000/api/medicines", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const text = await response.text();
+    console.log("Raw response:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
     }
-  };
+
+    if (!response.ok) {
+      throw new Error(data?.message || text || "Failed to add medicine");
+    }
+
+    Alert.alert("Success", "Medicine added successfully!");
+    router.push("/InventoryPage");
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err);
+      Alert.alert("Error", "Failed to add medicine: " + err.message);
+    } else {
+      Alert.alert("Error", "An unknown error occurred");
+    }
+  }
+};
+
 
   return (
     <SafeAreaView style={{ backgroundColor: "#252525", flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Back Button */}
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color="white" />
         </Pressable>
 
-        <Text style={styles.title}>Add medicine</Text>
+        <Text style={styles.title}>Add Medicine</Text>
 
         <TextInput
           style={styles.input}
@@ -112,16 +164,13 @@ export default function AddMedicine() {
           onChangeText={setName}
         />
 
-        <View style={styles.rowcontainer}>
-          <Pressable
-            style={styles.categorybtn}
-            onPress={() => setCategoryVisible(true)}
-          >
-            <Text style={styles.categoryText}>Category: {category}</Text>
+        <View style={styles.rowContainer}>
+          <Pressable style={styles.selectorButton} onPress={() => setCategoryVisible(true)}>
+            <Text style={styles.selectorText}>Category: {category}</Text>
           </Pressable>
 
           <TextInput
-            style={styles.Priceinput}
+            style={styles.priceInput}
             placeholder="$ Price"
             placeholderTextColor="#888"
             keyboardType="numeric"
@@ -130,22 +179,18 @@ export default function AddMedicine() {
           />
         </View>
 
-        <View style={styles.rowcontainer}>
-          <Pressable
-            style={styles.categorybtn}
-            onPress={() => setDosageVisible(true)}
-          >
-            <Text style={styles.categoryText}>Dosage type: {dosage}</Text>
+        <View style={styles.rowContainer}>
+          <Pressable style={styles.selectorButton} onPress={() => setDosageVisible(true)}>
+            <Text style={styles.selectorText}>Dosage type: {dosage}</Text>
           </Pressable>
 
           <TextInput
-            key={dosage}
-            style={styles.PackageInput}
+            style={styles.quantityInput}
             placeholder={dosageUnits[dosage] || "Quantity"}
             placeholderTextColor="#888"
             keyboardType="numeric"
             value={quantity}
-            onChangeText={setQuantitydosage}
+            onChangeText={setQuantity}
           />
         </View>
 
@@ -176,92 +221,40 @@ export default function AddMedicine() {
           placeholder="Manufacturer Name"
           placeholderTextColor="#888"
           value={manufacturer}
-          onChangeText={setManu}
+          onChangeText={setManufacturer}
         />
 
-        <View style={[styles.rowcontainer, { marginTop: 15 }]}>
-          <Text
-            style={{
-              color: "white",
-              fontSize: 16,
-              flex: 1,
-              alignSelf: "center",
-            }}
-          >
-            Stock Quantity:
-          </Text>
-
-          <View style={styles.quantityContainer}>
-            <Pressable
-              style={styles.qButton}
-              onPress={() =>
-                setStockQuantity((prev) => (prev > 0 ? prev - 1 : prev))
-              }
-            >
+        <View style={[styles.rowContainer, { marginTop: 15 }]}>
+          <Text style={styles.stockText}>Stock Quantity:</Text>
+          <View style={styles.stockContainer}>
+            <Pressable style={styles.qButton} onPress={() => setStockQuantity(prev => Math.max(prev - 1, 0))}>
               <Text style={styles.qButtonText}>-</Text>
             </Pressable>
-
             <Text style={styles.qValue}>{stockQuantity}</Text>
-
-            <Pressable
-              style={styles.qButton}
-              onPress={() => setStockQuantity((prev) => prev + 1)}
-            >
+            <Pressable style={styles.qButton} onPress={() => setStockQuantity(prev => prev + 1)}>
               <Text style={styles.qButtonText}>+</Text>
             </Pressable>
           </View>
         </View>
 
-        <DatePicker
-          expiryDate={expiryDate}
-          setExpiryDate={setExpiryDate}
-        />
+        <DatePicker expiryDate={expiryDate} setExpiryDate={setExpiryDate} />
 
-
-        <View style={[styles.btnssection]}>
-          <Pressable
-            style={[styles.cancelbtn]}
-            onPress={() => router.back()}
-          >
-            <Text style={{ color: "black", fontSize: 18, textAlign: "center", fontWeight: "500" }}>
-              Cancel
-            </Text>
+        <View style={styles.buttonSection}>
+          <Pressable style={styles.cancelButton} onPress={() => router.back()}>
+            <Text style={styles.buttonText}>Cancel</Text>
           </Pressable>
 
-          <Pressable
-            style={[styles.confirmbtn]}
-            onPress={() => {
-              // validate required fields first
-              if (
-                !name ||
-                category === "Select Category" ||
-                !price ||
-                dosage === "Select Type" ||
-                !quantity ||
-                !manufacturer ||
-                !expiryDate
-              ) {
-                Alert.alert("Error", "Please fill in all required fields.");
-                return;
-              }
-
-              // open confirmation modal instead of submitting
-              setShowConfirmModal(true);
-            }}
-          >
-            <Text style={{ color: "black", fontSize: 18, textAlign: "center", fontWeight: "500" }}>
-              Confirm
-            </Text>
+          <Pressable style={styles.confirmButton} onPress={() => setShowConfirmModal(true)}>
+            <Text style={styles.buttonText}>Confirm</Text>
           </Pressable>
         </View>
 
         <Confirmation
           visible={showConfirmModal}
           onClose={() => setShowConfirmModal(false)}
-          onConfirm={handleAddMedicine} // only call backend save when confirmed
+          onConfirm={handleAddMedicine}
           medicineData={medicineData}
         />
-
       </ScrollView>
       <NavigationBar />
     </SafeAreaView>
@@ -269,116 +262,22 @@ export default function AddMedicine() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#252525",
-    alignItems: "center",
-    gap: 15,
-    paddingBottom: 80,
-  },
-  backBtn: {
-    position: "absolute",
-    top: 28,
-    left: 20,
-    padding: 8,
-    zIndex: 10,
-  },
-  title: {
-    alignSelf: "center",
-    marginTop: 35,
-    fontSize: 26,
-    color: "white",
-    fontWeight: "bold",
-  },
-  input: {
-    height: 50,
-    width: "85%",
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
-  rowcontainer: {
-    flexDirection: "row",
-    width: "95%",
-    paddingHorizontal: 22,
-    marginTop: 15,
-    gap: 10,
-  },
-  categorybtn: {
-    flex: 2,
-    height: 50,
-    backgroundColor: "#3A3A3A",
-    borderRadius: 12,
-    justifyContent: "center",
-    paddingHorizontal: 12,
-  },
-  categoryText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  Priceinput: {
-    flex: 1,
-    height: 50,
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-  },
-  PackageInput: {
-    flex: 1,
-    height: 50,
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-  },
-  quantityContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#3A3A3A",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    height: 50,
-  },
-  qButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "#252525",
-    borderRadius: 8,
-  },
-  qButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  qValue: {
-    color: "white",
-    fontSize: 16,
-  },
-  cancelbtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 15,
-    backgroundColor: "#dc3939ff",
-    borderRadius: 16,
-    flex: 1,
-  },
-  confirmbtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 15,
-    backgroundColor: "#367154ff",
-    borderRadius: 16,
-    flex: 1,
-    textAlign: "center",
-  },
-  btnssection: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginHorizontal: 20,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    gap: 30,
-    marginTop: 20,
-  },
+  container: { backgroundColor: "#252525", alignItems: "center", gap: 15, paddingBottom: 80 },
+  backBtn: { position: "absolute", top: 28, left: 20, padding: 8, zIndex: 10 },
+  title: { alignSelf: "center", marginTop: 35, fontSize: 26, color: "white", fontWeight: "bold" },
+  input: { height: 50, width: "85%", backgroundColor: "white", borderRadius: 12, paddingHorizontal: 20, marginTop: 20 },
+  rowContainer: { flexDirection: "row", width: "95%", paddingHorizontal: 22, marginTop: 15, gap: 10 },
+  selectorButton: { flex: 2, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", paddingHorizontal: 12 },
+  selectorText: { color: "white", fontSize: 16, textAlign: "center" },
+  priceInput: { flex: 1, height: 50, backgroundColor: "white", borderRadius: 12, paddingHorizontal: 10 },
+  quantityInput: { flex: 1, height: 50, backgroundColor: "white", borderRadius: 12, paddingHorizontal: 10 },
+  stockText: { color: "white", fontSize: 16, flex: 1, alignSelf: "center" },
+  stockContainer: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#3A3A3A", borderRadius: 12, paddingHorizontal: 10, height: 50 },
+  qButton: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "#252525", borderRadius: 8 },
+  qButtonText: { color: "white", fontSize: 18, fontWeight: "bold" },
+  qValue: { color: "white", fontSize: 16 },
+  buttonSection: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 20, borderRadius: 12, paddingHorizontal: 10, gap: 30, marginTop: 20 },
+  cancelButton: { paddingHorizontal: 12, paddingVertical: 15, backgroundColor: "#dc3939ff", borderRadius: 16, flex: 1 },
+  confirmButton: { paddingHorizontal: 12, paddingVertical: 15, backgroundColor: "#367154ff", borderRadius: 16, flex: 1, textAlign: "center" },
+  buttonText: { color: "black", fontSize: 18, textAlign: "center", fontWeight: "500" },
 });

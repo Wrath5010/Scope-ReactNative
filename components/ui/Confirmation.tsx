@@ -1,53 +1,86 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView, Modal } from "react-native";
 
+interface UserData {
+  fullName: string;
+  email: string;
+  password?: string;
+  role: "admin" | "pharmacist";
+}
+
+interface MedicineData {
+  name: string;
+  category: string;
+  price: string | number;
+  dosage: string;
+  quantity: string | number;
+  manufacturer: string;
+  stockQuantity: number;
+  expiryDate: Date | null;
+}
+
 interface ConfirmationProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  medicineData: {
-    name: string;
-    category: string;
-    price: string | number;
-    dosage: string;
-    quantity: string | number;
-    manufacturer: string;
-    stockQuantity: number;
-    expiryDate: Date | null;
-  };
+  medicineData?: MedicineData;
+  userData?: UserData;
 }
 
-export default function Confirmation({ visible, onClose, onConfirm, medicineData }: ConfirmationProps) {
+export default function Confirmation({
+  visible,
+  onClose,
+  onConfirm,
+  medicineData,
+  userData,
+}: ConfirmationProps) {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Confirm Medicine Details</Text>
+          <Text style={styles.modalTitle}>
+            {medicineData ? "Confirm Medicine Details" : "Confirm User Details"}
+          </Text>
+
           <ScrollView style={{ maxHeight: 300 }}>
-            <Text style={styles.modalText}>Name: {medicineData.name}</Text>
-            <Text style={styles.modalText}>Category: {medicineData.category}</Text>
-            <Text style={styles.modalText}>Price: ${medicineData.price}</Text>
-            <Text style={styles.modalText}>Dosage: {medicineData.dosage}</Text>
-            <Text style={styles.modalText}>Quantity: {medicineData.quantity}</Text>
-            <Text style={styles.modalText}>Manufacturer: {medicineData.manufacturer}</Text>
-            <Text style={styles.modalText}>Stock Quantity: {medicineData.stockQuantity}</Text>
-            <Text style={styles.modalText}>
-              Expiry Date: {medicineData.expiryDate?.toLocaleDateString()}
-            </Text>
+            {medicineData && (
+              <>
+                <Text style={styles.modalText}>Name: {medicineData.name}</Text>
+                <Text style={styles.modalText}>Category: {medicineData.category}</Text>
+                <Text style={styles.modalText}>Price: ${medicineData.price}</Text>
+                <Text style={styles.modalText}>Dosage: {medicineData.dosage}</Text>
+                <Text style={styles.modalText}>Quantity: {medicineData.quantity}</Text>
+                <Text style={styles.modalText}>Manufacturer: {medicineData.manufacturer}</Text>
+                <Text style={styles.modalText}>Stock Quantity: {medicineData.stockQuantity}</Text>
+                <Text style={styles.modalText}>
+                  Expiry Date: {medicineData.expiryDate?.toLocaleDateString()}
+                </Text>
+              </>
+            )}
+
+            {userData && (
+              <>
+                <Text style={styles.modalText}>Full Name: {userData.fullName}</Text>
+                <Text style={styles.modalText}>Email: {userData.email}</Text>
+                <Text style={styles.modalText}>Role: {userData.role}</Text>
+                {userData.password && (
+                  <Text style={styles.modalText}>Password: {userData.password}</Text>
+                )}
+              </>
+            )}
           </ScrollView>
 
           <View style={styles.modalBtns}>
             <Pressable style={styles.cancelbtn} onPress={onClose}>
-              <Text style={{ color: "white", textAlign: "center", fontWeight: "500" }}>Cancel</Text>
+              <Text style={{ color: "white", textAlign: "center", fontWeight: "500" }}>
+                Cancel
+              </Text>
             </Pressable>
 
             <Pressable style={styles.confirmbtn} onPress={onConfirm}>
-              <Text style={{ color: "white", textAlign: "center", fontWeight: "500" }}>Confirm</Text>
+              <Text style={{ color: "white", textAlign: "center", fontWeight: "500" }}>
+                Confirm
+              </Text>
             </Pressable>
           </View>
         </View>

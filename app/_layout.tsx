@@ -14,11 +14,11 @@ export default function RootLayout() {
         contentStyle: { backgroundColor: "#252525" },
       }}
     >
-      <Stack.Screen name="Dashboard"/>
-      <Stack.Screen name="AddMedicine" />
-      <Stack.Screen name="LoginPage" />
-      <Stack.Screen name="Statistics" />
       <Stack.Screen name="StartUp" />
+      <Stack.Screen name="Dashboard"/>
+      <Stack.Screen name="LoginPage" />
+      <Stack.Screen name="AddMedicine" />
+      <Stack.Screen name="Statistics" />
       <Stack.Screen name="InventoryPage" />
       <Stack.Screen name="Notification" />
       <Stack.Screen name="Activitylog" />

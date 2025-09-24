@@ -16,18 +16,46 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    {/* temporary login */}
-    if (username === "admin" && password === "1234") {
-      router.replace("/Dashboard"); // navigate to home
-    } else {
-      Alert.alert("Login Failed", "Invalid username or password");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    try {
+      {/*Change localhost to computer's IP or phone IP */}
+      const response = await fetch("http://192.168.68.116:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert("Login Failed", data.message || "Invalid credentials");
+        return;
+      }
+
+      // Save JWT to AsyncStorage
+      await AsyncStorage.setItem("token", data.token);
+      // Save user info somewhere (AsyncStorage or context)
+      await AsyncStorage.setItem("userInfo", JSON.stringify(data.user));
+
+      // Log token to console --------REMOVE AFTER SORTED OUT ADD MEDICINE SITUATION
+      console.log("JWT token:", data.token);
+      // Navigate to dashboard
+      router.replace("/Dashboard");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Something went wrong. Try again.");
     }
   };
 
@@ -61,10 +89,11 @@ export default function LoginScreen() {
 
             <TextInput
               style={styles.input}
-              placeholder="Username"
+              placeholder="Email"
               placeholderTextColor="#888"
-              value={username}
-              onChangeText={setUsername}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
             />
 
             <TextInput
@@ -87,25 +116,9 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  backBtn: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    padding: 8,
-    zIndex: 10,
-  },
-  logo: {
-    height: 200,
-    resizeMode: "contain",
-    marginBottom: 10,
-    marginLeft: 15,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 30,
-  },
+  backBtn: { position: "absolute", top: 50, left: 20, padding: 8, zIndex: 10 },
+  logo: { height: 200, resizeMode: "contain", marginBottom: 10, marginLeft: 15 },
+  title: { fontSize: 28, fontWeight: "bold", color: "white", marginBottom: 30 },
   input: {
     width: "90%",
     height: 50,
@@ -115,16 +128,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
   },
-  button: {
-    backgroundColor: "grey",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
+  button: { backgroundColor: "grey", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 10, marginTop: 10 },
+  buttonText: { color: "white", fontWeight: "bold", fontSize: 16 },
 });

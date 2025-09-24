@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavigationBar from "@/components/ui/NavigationBar";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const categories = [
   "All", "Antibiotics", "Painkillers", "Cough & Cold", "Allergy", 
@@ -12,6 +12,18 @@ const categories = [
 ];
 
 const sortOptions = ["None", "A-Z", "Z-A", "High Stock", "Low Stock", "Expiring Soon", "Expiring Later"];
+
+interface Medicine {
+  _id: string;
+  name: string;
+  category: string;
+  price: number;
+  dosage: string;
+  quantity: number;
+  stockQuantity: number;
+  manufacturer: string;
+  expiryDate: string;
+}
 
 export default function Inventory() {
   const router = useRouter();
@@ -23,10 +35,39 @@ export default function Inventory() {
 
   const [medicines, setMedicines] = useState<Medicine[]>([]);
 
+  const fetchMedicines = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const response = await fetch("http://192.168.68.116:5000/api/medicines", { headers });
+      const text = await response.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Failed to parse response as JSON: " + text);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP ${response.status}`);
+      }
+
+      setMedicines(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Fetch medicines error:", err.message);
+        Alert.alert("Error", "Failed to fetch medicines: " + err.message);
+      } else {
+        Alert.alert("Error", "An unknown error occurred while fetching medicines.");
+      }
+    }
+  };
+
   useEffect(() => {
-    getMedicines()
-      .then(setMedicines)
-      .catch(() => Alert.alert("Error", "Failed to fetch medicines."));
+    fetchMedicines();
   }, []);
 
 

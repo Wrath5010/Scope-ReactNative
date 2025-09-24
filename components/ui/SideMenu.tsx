@@ -1,21 +1,40 @@
 import React from "react";
-import {
-  View, Text, Pressable, StyleSheet, Modal, ScrollView, Image} from "react-native";
+import { View, Text, Pressable, StyleSheet, Modal, ScrollView, Image, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 
 interface MenuItem {
   label: string;
   onPress: () => void;
-  icon?: React.ReactNode; // can be <Image> or <Ionicons>
+  icon?: any; // pass require("@/assets/...") here
 }
 
 interface SideMenuProps {
   visible: boolean;
   onClose: () => void;
   menuItems: MenuItem[];
+  userRole?: string;
 }
 
-const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems }) => {
-  
+const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRole }) => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("userInfo");
+    await AsyncStorage.clear(); // clears old role
+    onClose();
+    router.replace("/StartUp");
+  };
+
+  const handleCreateUser = () => {
+    if (userRole?.toLowerCase() === "admin") {
+      onClose();
+      router.push("/RegisterUser");
+    } else {
+      Alert.alert("Access Denied", "Only admins can create new users.");
+    }
+  };
+
   return (
     <Modal visible={visible} animationType="fade" transparent>
       <Pressable style={styles.overlay} onPress={onClose}>
@@ -32,12 +51,20 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems }) => {
                 }}
               >
                 <View style={styles.menuRow}>
-                  {item.icon && <View style={styles.iconWrapper}>{item.icon}</View>}
+                  {item.icon && <Image source={item.icon} style={styles.icon} />}
                   <Text style={styles.menuText}>{item.label}</Text>
                 </View>
               </Pressable>
             ))}
-            <Pressable style={styles.logoutbtn}>
+
+            {/* Show Create User ONLY if admin */}
+            {userRole?.toLowerCase() === "admin" && (
+              <Pressable style={styles.menuItem} onPress={handleCreateUser}>
+                <Text style={[styles.menuText, { color: "#00c8ff" }]}>Create User</Text>
+              </Pressable>
+            )}
+
+            <Pressable style={styles.logoutbtn} onPress={handleLogout}>
               <Text style={styles.logoutText}>Logout</Text>
             </Pressable>
           </ScrollView>
@@ -51,54 +78,20 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems }) => {
 export default SideMenu;
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    flexDirection: "row",
-  },
+  overlay: { flex: 1, flexDirection: "row" },
   menuContainer: {
-    width: '70%',
+    width: "70%",
     backgroundColor: "#252525",
     paddingTop: 50,
     paddingHorizontal: 20,
     height: "100%",
   },
-  menuheader:{
-    fontSize: 26,
-    fontWeight: "700",
-    color: 'white',
-    padding: 15
-  },
-  menuItem: {
-    paddingVertical: 5,
-  },
-  menuText: {
-    fontSize: 18,
-    fontWeight: "400",
-    color: 'white',
-    padding: 15,
-  },
-  transparentArea: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.42)",
-  },
-  icon:{
-    height:50,
-    resizeMode: 'contain',
-  },
-  logoutbtn:{
-
-  },
-  logoutText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: '#e61717ff',
-    padding: 15,
-  },
-  menuRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  },
-  iconWrapper: {
-    marginRight: 10,
-  },
+  menuheader: { fontSize: 26, fontWeight: "700", color: "white", padding: 15 },
+  menuItem: { paddingVertical: 5 },
+  menuText: { fontSize: 18, fontWeight: "400", color: "white", padding: 15 },
+  menuRow: { flexDirection: "row", alignItems: "center" },
+  icon: { width: 30, height: 30, marginRight: 10, resizeMode: "contain" },
+  transparentArea: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.42)" },
+  logoutbtn: {},
+  logoutText: { fontSize: 18, fontWeight: "600", color: "#e61717ff", padding: 15 },
 });

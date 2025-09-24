@@ -1,137 +1,76 @@
-import React, { useState } from "react";
-import { View, Pressable, StyleSheet, Alert, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Pressable, StyleSheet, Image, Alert } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import SideMenu from "@/components/ui/SideMenu";
 import { useRouter, usePathname } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function NavigationBar() {
   const router = useRouter();
   const pathname = usePathname();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [userRole, setUserRole] = useState("user");
 
-  // Side menu items (with images)
+  // Load user role from AsyncStorage
+  useEffect(() => {
+    const loadUserRole = async () => {
+      const storedUser = await AsyncStorage.getItem("userInfo");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setUserRole(user.role);
+      }
+    };
+    loadUserRole();
+  }, []);
+
+  // Side menu items (with icons)
   const menuItems = [
-    {
-      label: "Add Medicine",
-      onPress: () => router.push("/AddMedicine"),
-      icon: (
-        <Image
-          source={require("@/assets/images/add-medicine.png")}
-          style={styles.menuImages}
-        />
-      ),
-    },
-    {
-      label: "Delete Medicine",
-      onPress: () => router.push("/DeletePage"),
-      icon: (
-        <Image
-          source={require("@/assets/images/Delete-medicine.png")}
-          style={styles.menuImages}
-        />
-      ),
-    },
-    {
-      label: "Inventory",
-      onPress: () => router.push("/InventoryPage"),
-      icon: (
-        <Image
-          source={require("@/assets/images/Inventory.png")}
-          style={styles.menuImages}
-        />
-      ),
-    },
-    {
-      label: "Notification",
-      onPress: () => router.push("/Notification"),
-      icon: (
-        <Image
-          source={require("@/assets/images/Notification.png")}
-          style={styles.menuImages}
-        />
-      ),
-    },
-    {
-      label: "Statistics",
-      onPress: () => router.push("/Statistics"),
-      icon: (
-        <Image
-          source={require("@/assets/images/Statistics.png")}
-          style={styles.menuImages}
-        />
-      ),
-    },
-    {
-      label: "Activity Log",
-      onPress: () => router.push("/Activitylog"),
-      icon: (
-        <Image
-          source={require("@/assets/images/Activity-Log.png")}
-          style={styles.menuImages}
-        />
-      ),
-    },
+    { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png") },
+    { label: "Delete Medicine", onPress: () => router.push("/DeletePage"), icon: require("@/assets/images/Delete-medicine.png") },
+    { label: "Inventory", onPress: () => router.push("/InventoryPage"), icon: require("@/assets/images/Inventory.png") },
+    { label: "Notification", onPress: () => router.push("/Notification"), icon: require("@/assets/images/Notification.png") },
+    { label: "Statistics", onPress: () => router.push("/Statistics"), icon: require("@/assets/images/Statistics.png") },
+    { label: "Activity Log", onPress: () => router.push("/Activitylog"), icon: require("@/assets/images/Activity-Log.png") },
   ];
 
-  // Bottom navbar helper (optional, keep disabled states if needed)
   const isActive = (route: string) => pathname === route;
 
   return (
     <View style={styles.container}>
       {/* Inventory */}
       <Pressable
-        onPress={() => {
-          if (!isActive("/InventoryPage")) router.push("/InventoryPage");
-        }}
+        onPress={() => !isActive("/InventoryPage") && router.push("/InventoryPage")}
         disabled={isActive("/InventoryPage")}
-        style={({ pressed }) => [
-          styles.iconWrapper,
-          isActive("/InventoryPage") && styles.disabledIcon,
-          pressed && !isActive("/InventoryPage") && { opacity: 0.5 },
-        ]}
+        style={({ pressed }) => [{ opacity: pressed && !isActive("/InventoryPage") ? 0.5 : 1 }]}
       >
         <FontAwesome5 name="clipboard-list" size={24} color="white" />
       </Pressable>
 
       {/* Add */}
-      <Pressable onPress={() => {
-          if (!isActive("/AddMedicine")) router.push("/AddMedicine");
-        }}
+      <Pressable
+        onPress={() => !isActive("/AddMedicine") && router.push("/AddMedicine")}
         disabled={isActive("/AddMedicine")}
-        style={({ pressed }) => [
-          styles.iconWrapper,
-          isActive("/AddMedicine") && styles.disabledIcon,
-          pressed && !isActive("/AddMedicine") && { opacity: 0.5 },
-        ]}>
+        style={({ pressed }) => [{ opacity: pressed && !isActive("/AddMedicine") ? 0.5 : 1 }]}
+      >
         <Ionicons name="add-circle" size={24} color="white" />
       </Pressable>
 
       {/* Home */}
       <Pressable
-        onPress={() => {
-          if (!isActive("/")) router.push("/Dashboard");
-        }}
-        disabled={isActive("/")}
-        style={({ pressed }) => [
-          styles.iconWrapper,
-          isActive("/") && styles.disabledIcon,
-          pressed && !isActive("/") && { opacity: 0.5 },
-        ]}
+        onPress={() => !isActive("/Dashboard") && router.push("/Dashboard")}
+        disabled={isActive("/Dashboard")}
+        style={({ pressed }) => [{ opacity: pressed && !isActive("/Dashboard") ? 0.5 : 1 }]}
       >
         <Ionicons name="home" size={24} color="white" />
       </Pressable>
 
       {/* Delete */}
-      <Pressable onPress={() => {
-          if (!isActive("/DeletePage")) router.push("/DeletePage");
-        }}
+      <Pressable
+        onPress={() => !isActive("/DeletePage") && router.push("/DeletePage")}
         disabled={isActive("/DeletePage")}
-        style={({ pressed }) => [
-          styles.iconWrapper,
-          isActive("/DeletePage") && styles.disabledIcon,
-          pressed && !isActive("/DeletePage") && { opacity: 0.5 },
-        ]}>
+        style={({ pressed }) => [{ opacity: pressed && !isActive("/DeletePage") ? 0.5 : 1 }]}
+      >
         <MaterialIcons name="delete" size={24} color="white" />
       </Pressable>
 
@@ -144,7 +83,8 @@ export default function NavigationBar() {
       <SideMenu
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
-        menuItems={menuItems} // Only parsed here
+        menuItems={menuItems}
+        userRole={userRole}
       />
     </View>
   );
@@ -163,12 +103,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#252525",
     borderTopWidth: 1,
     borderTopColor: "#333",
-  },
-  iconWrapper: {
-    opacity: 1,
-  },
-  disabledIcon: {
-    opacity: 0.3,
   },
   menuImages: {
     width: 28,
