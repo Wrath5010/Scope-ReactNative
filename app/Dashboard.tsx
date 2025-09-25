@@ -30,7 +30,7 @@ export default function Dashboard() {
 
   const menuItems = [
     { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png") },
-    { label: "Delete Medicine", onPress: () => router.push("/DeletePage"), icon: require("@/assets/images/Delete-medicine.png") },
+    { label: "Delete Medicine", onPress: () => router.push("/InventoryPage?deletemode=true"), icon: require("@/assets/images/Delete-medicine.png") },
     { label: "Inventory", onPress: () => router.push("/InventoryPage"), icon: require("@/assets/images/Inventory.png") },
     { label: "Notification", onPress: () => router.push("/Notification"), icon: require("@/assets/images/Notification.png") },
     { label: "Statistics", onPress: () => router.push("/Statistics"), icon: require("@/assets/images/Statistics.png") },
@@ -69,7 +69,7 @@ export default function Dashboard() {
             <Text style={styles.textbox}>Add medicine</Text>
           </Pressable>
 
-          <Pressable style={styles.boxes} onPress={() => router.push("/DeletePage")}>
+          <Pressable style={styles.boxes} onPress={() => router.push("/InventoryPage?deletemode=true")}>
             <Image source={require("@/assets/images/Delete-medicine.png")} style={styles.icons} />
             <Text style={styles.textbox}>Delete medicine</Text>
           </Pressable>

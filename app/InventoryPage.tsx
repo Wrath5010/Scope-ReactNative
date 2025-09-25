@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavigationBar from "@/components/ui/NavigationBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocalSearchParams } from "expo-router";
+import DeleteModal from "@/components/ui/DeleteModal";
 
 const categories = [
   "All", "Antibiotics", "Painkillers", "Cough & Cold", "Allergy", 
@@ -27,21 +29,31 @@ interface Medicine {
 
 export default function Inventory() {
   const router = useRouter();
+
+  // === STATE ===
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVisible, setFilterVisible] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [selectedSort, setSelectedSort] = useState("None");
-
   const [medicines, setMedicines] = useState<Medicine[]>([]);
 
+  // Delete modal state
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Medicine | null>(null);
+
+  const { deleteMode } = useLocalSearchParams<{ deleteMode?: string }>();
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  // === FETCH MEDICINES ===
   const fetchMedicines = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch("http://192.168.68.116:5000/api/medicines", { headers });
+      const response = await fetch("http://192.168.68.114:5000/api/medicines", { headers });
       const text = await response.text();
 
       let data;
@@ -66,47 +78,63 @@ export default function Inventory() {
     }
   };
 
-  useEffect(() => {
-    fetchMedicines();
-  }, []);
+  useEffect(() => { fetchMedicines(); }, []);
 
+  useEffect(() => { if (deleteMode === "true") setIsDeleteMode(true); }, [deleteMode]);
 
-  // Filter, search, and sort
+  // === CANCEL DELETE MODE ===
+  const cancelDeleteMode = () => {
+    setIsDeleteMode(false);
+    setSelectedItems([]);
+    router.replace("/InventoryPage"); // go back without query
+  };
+
+  // === DELETE HANDLERS ===
+  const handleDeletePress = (item: Medicine) => {
+    setItemToDelete(item);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) throw new Error("Not authenticated");
+
+      const response = await fetch(
+        `http://192.168.68.114:5000/api/medicines/${itemToDelete._id}`,
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to delete medicine");
+      }
+
+      setMedicines(prev => prev.filter(m => m._id !== itemToDelete._id));
+      setItemToDelete(null);
+      setDeleteModalVisible(false);
+    } catch (err) {
+      console.error("Delete error:", err);
+      Alert.alert("Error", err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  // === FILTER, SEARCH, SORT ===
   const displayedData = useMemo(() => {
     let result = [...medicines];
 
-    // Category filter
-    if (selectedFilter !== "All") {
-      result = result.filter(item => item.category === selectedFilter);
-    }
+    if (selectedFilter !== "All") result = result.filter(item => item.category === selectedFilter);
+    if (searchQuery.trim() !== "") result = result.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Search
-    if (searchQuery.trim() !== "") {
-      result = result.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Sorting
     switch (selectedSort) {
-      case "A-Z":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "Z-A":
-        result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "High Stock":
-        result.sort((a, b) => (b.quantity ?? 0) - (a.quantity ?? 0));
-        break;
-      case "Low Stock":
-        result.sort((a, b) => (a.quantity ?? 0) - (b.quantity ?? 0));
-        break;
-      case "Expiring Soon":
-        result.sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
-        break;
-      case "Expiring Later":
-        result.sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime());
-        break;
+      case "A-Z": result.sort((a,b) => a.name.localeCompare(b.name)); break;
+      case "Z-A": result.sort((a,b) => b.name.localeCompare(a.name)); break;
+      case "High Stock": result.sort((a,b) => (b.quantity ?? 0) - (a.quantity ?? 0)); break;
+      case "Low Stock": result.sort((a,b) => (a.quantity ?? 0) - (b.quantity ?? 0)); break;
+      case "Expiring Soon": result.sort((a,b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()); break;
+      case "Expiring Later": result.sort((a,b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()); break;
     }
 
     return result;
@@ -131,37 +159,30 @@ export default function Inventory() {
           />
 
           <View style={styles.RowContainer}>
-            {/* Filter Button */}
             <Pressable style={styles.filter} onPress={() => setFilterVisible(true)}>
               <Text style={styles.btnText}>Filter: {selectedFilter}</Text>
             </Pressable>
 
-            {/* Sort Button */}
             <Pressable style={styles.sort} onPress={() => setSortVisible(true)}>
               <Text style={styles.btnText}>Sort: {selectedSort}</Text>
             </Pressable>
           </View>
         </View>
 
-        {/* Filter Modal */}
+        {/* FILTER MODAL */}
         <Modal visible={filterVisible} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <Pressable style={StyleSheet.absoluteFill} onPress={() => setFilterVisible(false)} />
             <View style={styles.modalBox}>
               <Text style={styles.modalTitle}>Filter by Category</Text>
               <View style={styles.chipContainer}>
-                {categories.map((option) => (
+                {categories.map(option => (
                   <TouchableOpacity
                     key={option}
                     style={[styles.chip, selectedFilter === option && styles.chipSelected]}
-                    onPress={() => {
-                      setSelectedFilter(option);
-                      setFilterVisible(false);
-                    }}
+                    onPress={() => { setSelectedFilter(option); setFilterVisible(false); }}
                   >
-                    <Text style={[styles.chipText, selectedFilter === option && styles.chipTextSelected]}>
-                      {option}
-                    </Text>
+                    <Text style={[styles.chipText, selectedFilter === option && styles.chipTextSelected]}>{option}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -170,25 +191,20 @@ export default function Inventory() {
           </View>
         </Modal>
 
-        {/* Sort Modal */}
+        {/* SORT MODAL */}
         <Modal visible={sortVisible} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <Pressable style={StyleSheet.absoluteFill} onPress={() => setSortVisible(false)} />
             <View style={styles.modalBox}>
               <Text style={styles.modalTitle}>Sort by</Text>
               <View style={styles.chipContainer}>
-                {sortOptions.map((option) => (
+                {sortOptions.map(option => (
                   <TouchableOpacity
                     key={option}
                     style={[styles.chip, selectedSort === option && styles.chipSelected]}
-                    onPress={() => {
-                      setSelectedSort(option);
-                      setSortVisible(false);
-                    }}
+                    onPress={() => { setSelectedSort(option); setSortVisible(false); }}
                   >
-                    <Text style={[styles.chipText, selectedSort === option && styles.chipTextSelected]}>
-                      {option}
-                    </Text>
+                    <Text style={[styles.chipText, selectedSort === option && styles.chipTextSelected]}>{option}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -197,46 +213,65 @@ export default function Inventory() {
           </View>
         </Modal>
 
+        {/* MEDICINE LIST */}
         <FlatList
-        data={displayedData}
-        keyExtractor={(item, index) => item._id ? item._id.toString() : index.toString()}
-        style={{ marginTop: 55 }}
-        contentContainerStyle={{ paddingBottom: 200 }}
-        renderItem={({ item }: { item: Medicine }) => {
-          const today = new Date();
-          const expiry = new Date(item.expiryDate);
-          const daysToExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          data={displayedData}
+          keyExtractor={(item) => item._id}
+          style={{ marginTop: 55 }}
+          contentContainerStyle={{ paddingBottom: 300 }}
+          renderItem={({ item }: { item: Medicine }) => {
+            const today = new Date();
+            const expiry = new Date(item.expiryDate);
+            const daysToExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000*60*60*24));
+            let expiryText = item.expiryDate;
+            let expiryColor = "#555";
+            if (daysToExpiry <= 30) { expiryColor = "#dc3939"; expiryText += " (Near Expiry)"; }
+            else if (daysToExpiry <= 90) { expiryColor = "#e6a23c"; expiryText += " (Expiring Soon)"; }
 
-          let expiryText: string = item.expiryDate; // explicitly typed
-          let expiryColor = "#555";
+            return (
+              <View style={lists.listItem}>
+                <View style={lists.leftSection}>
+                  <Text style={lists.itemName}>{item.name}</Text>
+                  <Text style={lists.itemText}>Category: {item.category}</Text>
+                  <Text style={lists.itemText}>Dosage: {item.dosage ?? "-"}</Text>
+                  <Text style={lists.itemText}>Manufacturer: {item.manufacturer ?? "-"}</Text>
+                </View>
 
-          if (daysToExpiry <= 30) {
-            expiryColor = "#dc3939"; // red
-            expiryText += " (Near Expiry)";
-          } else if (daysToExpiry <= 90) {
-            expiryColor = "#e6a23c"; // orange
-            expiryText += " (Expiring Soon)";
-          }
+                <View style={lists.rightSection}>
+                  <Text style={lists.itemText}>Qty: {item.quantity}</Text>
+                  <Text style={lists.itemText}>Stock: {item.stockQuantity ?? 0}</Text>
+                  <Text style={lists.itemText}>Price: ${item.price}</Text>
+                  <Text style={[lists.itemText, { color: expiryColor }]}>{expiryText}</Text>
 
-          return (
-            <View style={lists.listItem}>
-              <View style={lists.leftSection}>
-                <Text style={lists.itemName}>{item.name}</Text>
-                <Text style={lists.itemText}>Category: {item.category}</Text>
-                <Text style={lists.itemText}>Dosage: {item.dosage ?? "-"}</Text>
-                <Text style={lists.itemText}>Manufacturer: {item.manufacturer ?? "-"}</Text>
+                  {/* Update & Delete buttons */}
+                  <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
+                    <Pressable
+                      onPress={() => Alert.alert("Update pressed")}
+                      style={{ backgroundColor: "#3A3A3A", padding: 6, borderRadius: 6 }}
+                    >
+                      <Text style={{ color: "white" }}>Update</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => handleDeletePress(item)}
+                      style={{ backgroundColor: "#dc3939", padding: 6, borderRadius: 6 }}
+                    >
+                      <Text style={{ color: "white" }}>Delete</Text>
+                    </Pressable>
+                  </View>
+                </View>
               </View>
+            );
+          }}
+        />
 
-              <View style={lists.rightSection}>
-                <Text style={lists.itemText}>Qty: {item.quantity}</Text>
-                <Text style={lists.itemText}>Stock: {item.stockQuantity ?? 0}</Text>
-                <Text style={lists.itemText}>Price: ${item.price}</Text>
-                <Text style={[lists.itemText, { color: expiryColor }]}>Expiry: {expiryText}</Text>
-              </View>
-            </View>
-          );
-        }}
-      />
+        {/* DELETE MODAL */}
+        <DeleteModal
+          visible={deleteModalVisible}
+          itemName={itemToDelete?.name}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteModalVisible(false)}
+        />
 
       </View>
 
@@ -244,6 +279,7 @@ export default function Inventory() {
     </SafeAreaView>
   );
 }
+
 
 // === Styles (unchanged) ===
 const styles = StyleSheet.create({
@@ -272,4 +308,27 @@ const lists = StyleSheet.create({
   rightSection: { flex: 1, justifyContent: "space-between", alignItems: "flex-end", gap: 10 },
   itemName: { fontSize: 16, fontWeight: "500" },
   itemText: { fontSize: 14, color: "#555" },
+});
+
+const deleteStyles = StyleSheet.create({
+  actionBar: {
+    position: "absolute",
+    bottom: 70,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 15,
+    backgroundColor: "#252525",
+    borderTopWidth: 1,
+    borderColor: "#444",
+  },
+  btn: {
+    flex: 1,
+    marginHorizontal: 8,
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  btnText: { color: "white", fontSize: 16, fontWeight: "600" },
 });

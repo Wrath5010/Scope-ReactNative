@@ -17,6 +17,7 @@ import DatePicker from "@/components/ui/DatePicker";
 import NavigationBar from "@/components/ui/NavigationBar";
 import Confirmation from "@/components/ui/Confirmation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from '@expo/vector-icons';
 
 interface MedicineData {
   name: string;
@@ -33,10 +34,10 @@ export default function AddMedicine() {
   const router = useRouter();
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("Select Category");
+  const [category, setCategory] = useState("Select");
   const [categoryVisible, setCategoryVisible] = useState(false);
   const [price, setPrice] = useState("");
-  const [dosage, setDosage] = useState("Select Type");
+  const [dosage, setDosage] = useState("Select");
   const [dosageVisible, setDosageVisible] = useState(false);
   const [manufacturer, setManufacturer] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -79,9 +80,9 @@ export default function AddMedicine() {
   const handleAddMedicine = async () => {
   if (
     !name ||
-    category === "Select Category" ||
+    category === "Category" ||
     !price ||
-    dosage === "Select Type" ||
+    dosage === "Select Formula" ||
     !quantity ||
     !manufacturer ||
     !expiryDate
@@ -111,7 +112,7 @@ export default function AddMedicine() {
 
     console.log("Payload:", payload); // Debug: check before sending
 
-    const response = await fetch("http://192.168.68.116:5000/api/medicines", {
+    const response = await fetch("http://192.168.68.114:5000/api/medicines", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -164,10 +165,25 @@ export default function AddMedicine() {
           onChangeText={setName}
         />
 
+        <TextInput
+          style={styles.input}
+          placeholder="Manufacturer Name"
+          placeholderTextColor="#888"
+          value={manufacturer}
+          onChangeText={setManufacturer}
+        />
+
         <View style={styles.rowContainer}>
+          <Pressable style={styles.selectorButton} onPress={() => setDosageVisible(true)}>
+            <Text style={styles.selectorText}>Formula: {dosage}</Text>
+          </Pressable>
+
           <Pressable style={styles.selectorButton} onPress={() => setCategoryVisible(true)}>
             <Text style={styles.selectorText}>Category: {category}</Text>
           </Pressable>
+        </View>
+
+        <View style={styles.rowContainer}>
 
           <TextInput
             style={styles.priceInput}
@@ -177,12 +193,6 @@ export default function AddMedicine() {
             value={price}
             onChangeText={setPrice}
           />
-        </View>
-
-        <View style={styles.rowContainer}>
-          <Pressable style={styles.selectorButton} onPress={() => setDosageVisible(true)}>
-            <Text style={styles.selectorText}>Dosage type: {dosage}</Text>
-          </Pressable>
 
           <TextInput
             style={styles.quantityInput}
@@ -214,14 +224,6 @@ export default function AddMedicine() {
             setDosageVisible(false);
           }}
           dosages={dosages}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Manufacturer Name"
-          placeholderTextColor="#888"
-          value={manufacturer}
-          onChangeText={setManufacturer}
         />
 
         <View style={[styles.rowContainer, { marginTop: 15 }]}>
@@ -268,7 +270,7 @@ const styles = StyleSheet.create({
   input: { height: 50, width: "85%", backgroundColor: "white", borderRadius: 12, paddingHorizontal: 20, marginTop: 20 },
   rowContainer: { flexDirection: "row", width: "95%", paddingHorizontal: 22, marginTop: 15, gap: 10 },
   selectorButton: { flex: 2, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", paddingHorizontal: 12 },
-  selectorText: { color: "white", fontSize: 16, textAlign: "center" },
+  selectorText: { color: "white", fontSize: 16, textAlign: "center", flexWrap: 'wrap', },
   priceInput: { flex: 1, height: 50, backgroundColor: "white", borderRadius: 12, paddingHorizontal: 10 },
   quantityInput: { flex: 1, height: 50, backgroundColor: "white", borderRadius: 12, paddingHorizontal: 10 },
   stockText: { color: "white", fontSize: 16, flex: 1, alignSelf: "center" },

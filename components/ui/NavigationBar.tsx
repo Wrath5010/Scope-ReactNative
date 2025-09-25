@@ -27,7 +27,7 @@ export default function NavigationBar() {
   // Side menu items (with icons)
   const menuItems = [
     { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png") },
-    { label: "Delete Medicine", onPress: () => router.push("/DeletePage"), icon: require("@/assets/images/Delete-medicine.png") },
+    { label: "Delete Medicine", onPress: () => router.push("/InventoryPage?deletemode=true"), icon: require("@/assets/images/Delete-medicine.png") },
     { label: "Inventory", onPress: () => router.push("/InventoryPage"), icon: require("@/assets/images/Inventory.png") },
     { label: "Notification", onPress: () => router.push("/Notification"), icon: require("@/assets/images/Notification.png") },
     { label: "Statistics", onPress: () => router.push("/Statistics"), icon: require("@/assets/images/Statistics.png") },
@@ -63,15 +63,6 @@ export default function NavigationBar() {
         style={({ pressed }) => [{ opacity: pressed && !isActive("/Dashboard") ? 0.5 : 1 }]}
       >
         <Ionicons name="home" size={24} color="white" />
-      </Pressable>
-
-      {/* Delete */}
-      <Pressable
-        onPress={() => !isActive("/DeletePage") && router.push("/DeletePage")}
-        disabled={isActive("/DeletePage")}
-        style={({ pressed }) => [{ opacity: pressed && !isActive("/DeletePage") ? 0.5 : 1 }]}
-      >
-        <MaterialIcons name="delete" size={24} color="white" />
       </Pressable>
 
       {/* Hamburger Menu */}
