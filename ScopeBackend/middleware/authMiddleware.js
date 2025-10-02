@@ -1,3 +1,4 @@
+// middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
 const User = require("../models/Users");
 
@@ -19,4 +20,15 @@ const protect = async (req, res, next) => {
   if (!token) return res.status(401).json({ message: "Not authorized, no token" });
 };
 
-module.exports = { protect };
+// Role-base accesss
+const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden — insufficient permissions" });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorize };

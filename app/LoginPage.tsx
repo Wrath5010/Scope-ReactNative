@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
     try {
       {/*Change localhost to computer's IP or phone IP */}
-      const response = await fetch("http://192.168.68.110:5000/api/auth/login", {
+      const response = await fetch("http://192.168.68.118:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -76,7 +76,7 @@ export default function LoginScreen() {
             }}
             keyboardShouldPersistTaps="handled"
           >
-            <Pressable onPress={() => router.back()} style={styles.backBtn}>
+            <Pressable onPress={() => router.push("/StartUp")} style={styles.backBtn}>
               <Ionicons name="arrow-back" size={28} color="white" />
             </Pressable>
 

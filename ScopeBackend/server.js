@@ -5,6 +5,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
 const medicineRoutes = require("./routes/medicines");
 const notificationRoutes = require("./routes/notifications"); 
 const activityRoutes = require("./routes/activity"); 
@@ -21,6 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/medicines", medicineRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/activity", activityRoutes);
+app.use("/api/users", userRoutes);
 
 // Default route
 app.get("/", (req, res) => res.send("Backend is running"));

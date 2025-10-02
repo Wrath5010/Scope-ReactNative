@@ -165,10 +165,10 @@ const styles = StyleSheet.create({
     fontSize: 14, 
     fontWeight: "bold",
     textAlign: "center",
-    flexShrink: 1,          // prevents text overflow
+    flexShrink: 1,          
   },
   icons: { 
-    width: "70%",            // scales with box size
+    width: "70%",            
     height: "70%", 
     resizeMode: "contain", 
   },

@@ -276,15 +276,14 @@ export default function Inventory() {
             const expiry = new Date(item.expiryDate);
             const daysToExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-            // Format expiry date to readable string
+            // expiry date to more readable string
             const formattedExpiry = expiry.toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
             });
 
-            // Determine expiry text, color, and font style
-            // Determine expiry status
+            // Determine expiry status, color, and font style
             const getExpiryStatus = (daysToExpiry: number) => {
               if (daysToExpiry <= 0) {
                 return { text: "Expired", color: "#000000", fontWeight: "bold" as const };

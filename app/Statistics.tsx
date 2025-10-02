@@ -49,7 +49,7 @@ export default function Statistics() {
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const response = await fetch("http://192.168.68.110:5000/api/medicines", { headers });
+        const response = await fetch("http://192.168.68.118:5000/api/medicines", { headers });
         const text = await response.text();
 
         let data: Medicine[];
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     alignItems: "center",
-    paddingBottom: 30, 
+    paddingBottom: 200, 
     backgroundColor: "#252525",
   },
   backBtn: {

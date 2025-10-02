@@ -21,7 +21,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRo
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("userInfo");
-    await AsyncStorage.clear(); // clears old role
+    await AsyncStorage.clear();
     onClose();
     router.replace("/StartUp");
   };
@@ -31,9 +31,11 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRo
       onClose();
       router.push("/RegisterUser");
     } else {
+      //incase if the actions are visible
       Alert.alert("Access Denied", "Only admins can create new users.");
     }
   };
+
 
   return (
     <Modal visible={visible} animationType="fade" transparent>
@@ -61,6 +63,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRo
             {userRole?.toLowerCase() === "admin" && (
               <Pressable style={styles.menuItem} onPress={handleCreateUser}>
                 <Text style={[styles.menuText, { color: "#00c8ff" }]}>Create User</Text>
+              </Pressable>
+            )}
+
+            {userRole?.toLowerCase() === "admin" && (
+              <Pressable style={styles.menuItem} onPress={() => router.push("/Users")}>
+                <Text style={[styles.menuText, { color: "#00c8ff" }]}>Users</Text>
               </Pressable>
             )}
 
