@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   Pressable,
   StyleSheet,
   Alert,
@@ -17,7 +16,7 @@ import DatePicker from "@/components/ui/DatePicker";
 import NavigationBar from "@/components/ui/NavigationBar";
 import Confirmation from "@/components/ui/Confirmation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FontAwesome } from '@expo/vector-icons';
+import { TextInput } from 'react-native-paper';
 
 interface MedicineData {
   name: string;
@@ -44,6 +43,7 @@ export default function AddMedicine() {
   const [stockQuantity, setStockQuantity] = useState(0);
   const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  
 
   const dosages = ["Tablet", "Capsule", "Syrup", "Injection", "Ointment"];
   const categories = [
@@ -112,7 +112,7 @@ export default function AddMedicine() {
 
     console.log("Payload:", payload); // Debug: check before sending
 
-    const response = await fetch("http://192.168.68.114:5000/api/medicines", {
+    const response = await fetch("http://192.168.68.110:5000/api/medicines", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -163,6 +163,10 @@ export default function AddMedicine() {
           placeholderTextColor="#888"
           value={name}
           onChangeText={setName}
+          mode="outlined"
+          outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
+          theme={{ colors: { text: "black", placeholder: "#888" } }} 
+          left={<TextInput.Affix text="Product: " />}
         />
 
         <TextInput
@@ -171,6 +175,10 @@ export default function AddMedicine() {
           placeholderTextColor="#888"
           value={manufacturer}
           onChangeText={setManufacturer}
+          mode="outlined"
+          outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
+          theme={{ colors: { text: "black", placeholder: "#888" } }} 
+          left={<TextInput.Affix text="Manufacturer: " />}
         />
 
         <View style={styles.rowContainer}>
@@ -187,20 +195,28 @@ export default function AddMedicine() {
 
           <TextInput
             style={styles.priceInput}
-            placeholder="$ Price"
+            placeholder="Price"
             placeholderTextColor="#888"
             keyboardType="numeric"
             value={price}
             onChangeText={setPrice}
+            left={<TextInput.Affix text="$ " />}
+            mode="outlined"
+            outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
+            theme={{ colors: { text: "black", placeholder: "#888" } }} 
           />
 
           <TextInput
             style={styles.quantityInput}
-            placeholder={dosageUnits[dosage] || "Quantity"}
+            placeholder="Quantity"
             placeholderTextColor="#888"
             keyboardType="numeric"
             value={quantity}
             onChangeText={setQuantity}
+            mode="outlined"
+            left={<TextInput.Affix text={dosageUnits[dosage] || ""} />}
+            outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
+            theme={{ colors: { text: "black", placeholder: "#888" } }} 
           />
         </View>
 

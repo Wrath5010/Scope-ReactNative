@@ -4,6 +4,8 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SideMenu from "@/components/ui/SideMenu";
+import { Dimensions } from "react-native";
+const { width } = Dimensions.get("window");
 
 export default function Dashboard() {
   const router = useRouter();
@@ -13,20 +15,15 @@ export default function Dashboard() {
 
   // Load user from AsyncStorage
   useEffect(() => {
-  const loadUser = async () => {
-    const storedUser = await AsyncStorage.getItem("userInfo");
-    console.log("AsyncStorage.userInfo raw:", storedUser);
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      console.log("parsed user:", parsed);
-      setUser(parsed);
-      
-
-    }
-  };
-  loadUser();
-}, []);
-
+    const loadUser = async () => {
+      const storedUser = await AsyncStorage.getItem("userInfo");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+      }
+    };
+    loadUser();
+  }, []);
 
   const menuItems = [
     { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png") },
@@ -40,27 +37,31 @@ export default function Dashboard() {
   return (
     <SafeAreaView style={{ backgroundColor: "#252525", flex: 1 }}>
       <View style={styles.container}>
-        <View style={{ paddingLeft: 10, gap: 20 }}>
-          <View style={styles.rowcontainer}>
-            <Pressable style={styles.menubtn} onPress={() => setMenuVisible(true)}>
-              <Image source={require("@/assets/images/Hamburger-menu.png")} style={styles.menu} />
-            </Pressable>
 
-            <SideMenu
-            visible={menuVisible}
-            onClose={() => setMenuVisible(false)}
-            menuItems={menuItems}
-            userRole={user?.role || "user"}
-            />
+        {/* Header Row: hamburger + logo */}
+        <View style={styles.rowcontainer}>
+          {/* Left: Hamburger */}
+          <Pressable style={styles.menubtn} onPress={() => setMenuVisible(true)}>
+            <Image source={require("@/assets/images/Hamburger-menu.png")} style={styles.menu} />
+          </Pressable>
 
-            <Image style={styles.logo} source={require("@/assets/images/icon.png")} />
-          </View>
-
-          <View style={styles.header}>
-            <Text style={styles.h1}>Welcome, {userName}</Text>
-            <Text style={styles.p}>Dashboard</Text>
-          </View>
+          {/* Right: Logo */}
+          <Image style={styles.logo} source={require("@/assets/images/icon.png")} />
         </View>
+
+        {/* Header text block */}
+        <View style={styles.headerText}>
+          <Text style={styles.h1}>Welcome, {userName}</Text>
+          <Text style={styles.p}>Dashboard</Text>
+        </View>
+
+        {/* Side Menu */}
+        <SideMenu
+          visible={menuVisible}
+          onClose={() => setMenuVisible(false)}
+          menuItems={menuItems}
+          userRole={user?.role || "user"}
+        />
 
         {/* Quick action boxes */}
         <View style={styles.row}>
@@ -104,17 +105,71 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#252525", paddingTop: 30 },
-  rowcontainer: { height: 50, flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingLeft: 20 },
-  logo: { height: 130, resizeMode: "contain", marginLeft: 40 },
-  menubtn: { width: "0%", alignItems: "center" },
-  menu: { height: 30, resizeMode: "contain", justifyContent: "center" },
-  header: { height: 50, paddingLeft: 10, marginBottom: 10 },
-  h1: { color: "white", fontSize: 26, fontWeight: "bold" },
-  p: { color: "white", fontSize: 14 },
-  row: { flexDirection: "row", justifyContent: "space-around", padding: 10 },
-  boxes: { height: 180, width: 160, borderColor: "white", borderWidth: 2, borderRadius: 15, alignItems: "center", gap: 10, padding: 20 },
-  textbox: { color: "white", fontSize: 14, fontWeight: "bold" },
-  icons: { height: 100, resizeMode: "center" },
-  menuimages: { width: 30, height: 30 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#252525",  
+  },
+  rowcontainer: { 
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    alignItems: "center", 
+    paddingHorizontal: '6%',
+    width: "100%"
+  },
+  menubtn: { 
+    padding: 8,
+  },
+  menu: { 
+    width: 28, 
+    height: 28, 
+    resizeMode: "contain"
+  },
+  headerText: {
+    marginTop: 8,
+    paddingHorizontal: '7%',
+    marginBottom: 10
+  },
+  h1: { 
+    color: "white", 
+    fontSize: 26, 
+    fontWeight: "bold" 
+  },
+  p: { 
+    color: "white", 
+    fontSize: 14 
+  },
+  logo: { 
+    width: 120, 
+    height: 120, 
+    resizeMode: "contain", 
+  },
+  row: { 
+    flexDirection: "row", 
+    justifyContent: "space-between",  
+    padding: 10,
+    paddingHorizontal: 20
+  },
+  boxes: { 
+    width: width * 0.40,     
+    aspectRatio: 0.9,          
+    borderColor: "white", 
+    borderWidth: 2, 
+    borderRadius: 15, 
+    alignItems: "center", 
+    justifyContent: "center",
+    gap: 10, 
+    padding: 16,
+  },
+  textbox: { 
+    color: "white", 
+    fontSize: 14, 
+    fontWeight: "bold",
+    textAlign: "center",
+    flexShrink: 1,          // prevents text overflow
+  },
+  icons: { 
+    width: "70%",            // scales with box size
+    height: "70%", 
+    resizeMode: "contain", 
+  },
 });

@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
+import NavigationBar from "@/components/ui/NavigationBar";
 
 
 export default function Notification() {
@@ -19,7 +20,16 @@ export default function Notification() {
         </Pressable>
         
         <Text style={styles.title}>Notifcations</Text>
+
+        <View>
+          <TextInput
+            style={styles.search}
+            placeholder="Product Name"
+            placeholderTextColor="#888"
+          />
+        </View>
     </View>
+    <NavigationBar></NavigationBar>
     </SafeAreaView>
   );
 }
@@ -44,4 +54,12 @@ const styles = StyleSheet.create({
       color: 'white',
       fontWeight: 'bold'
     },
+    search: { 
+    height: 50, 
+    width: "100%", 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    paddingHorizontal: 12, 
+    marginTop: 15 
+  },
 });

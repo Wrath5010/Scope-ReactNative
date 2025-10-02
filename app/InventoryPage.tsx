@@ -7,6 +7,7 @@ import NavigationBar from "@/components/ui/NavigationBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
 import DeleteModal from "@/components/ui/DeleteModal";
+import UpdateModal from "@/components/ui/UpdateModal";
 
 const categories = [
   "All", "Antibiotics", "Painkillers", "Cough & Cold", "Allergy", 
@@ -41,19 +42,30 @@ export default function Inventory() {
   // Delete modal state
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Medicine | null>(null);
-
+  
   const { deleteMode } = useLocalSearchParams<{ deleteMode?: string }>();
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  // === FETCH MEDICINES ===
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [editingItem, setEditingItem] = useState<Medicine | null>(null);
+
+  const dosageUnits: Record<string, string> = {
+    Tablet: "pcs",
+    Capsule: "pcs",
+    Syrup: "ml",
+    Injection: "ml",
+    Ointment: "g",
+  };
+
+  // Fetch Medicine
   const fetchMedicines = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch("http://192.168.68.114:5000/api/medicines", { headers });
+      const response = await fetch("http://192.168.68.110:5000/api/medicines", { headers });
       const text = await response.text();
 
       let data;
@@ -80,6 +92,35 @@ export default function Inventory() {
 
   useEffect(() => { fetchMedicines(); }, []);
 
+  //Update
+  const handleUpdateMedicine = async (data: Medicine) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("Not authenticated");
+
+    const response = await fetch(`http://192.168.68.110:5000/api/medicines/${data._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update medicine");
+    }
+
+    setMedicines((prev) =>
+      prev.map((m) => (m._id === data._id ? { ...m, ...data } : m))
+    );
+
+    setUpdateModalVisible(false);
+    setEditingItem(null);
+  } catch (err) {
+    console.error("Update error:", err);
+  }
+};
+
+
   useEffect(() => { if (deleteMode === "true") setIsDeleteMode(true); }, [deleteMode]);
 
   // === CANCEL DELETE MODE ===
@@ -103,7 +144,7 @@ export default function Inventory() {
       if (!token) throw new Error("Not authenticated");
 
       const response = await fetch(
-        `http://192.168.68.114:5000/api/medicines/${itemToDelete._id}`,
+        `http://192.168.68.110:5000/api/medicines/${itemToDelete._id}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -213,6 +254,17 @@ export default function Inventory() {
           </View>
         </Modal>
 
+        <UpdateModal
+          visible={updateModalVisible}
+          onClose={() => {
+            setUpdateModalVisible(false);
+            setEditingItem(null);
+          }}
+          onSave={handleUpdateMedicine}
+          initialData={editingItem}
+        />
+
+
         {/* MEDICINE LIST */}
         <FlatList
           data={displayedData}
@@ -222,48 +274,71 @@ export default function Inventory() {
           renderItem={({ item }: { item: Medicine }) => {
             const today = new Date();
             const expiry = new Date(item.expiryDate);
-            const daysToExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000*60*60*24));
-            let expiryText = item.expiryDate;
-            let expiryColor = "#555";
-            if (daysToExpiry <= 30) { expiryColor = "#dc3939"; expiryText += " (Near Expiry)"; }
-            else if (daysToExpiry <= 90) { expiryColor = "#e6a23c"; expiryText += " (Expiring Soon)"; }
+            const daysToExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-            return (
-              <View style={lists.listItem}>
-                <View style={lists.leftSection}>
-                  <Text style={lists.itemName}>{item.name}</Text>
-                  <Text style={lists.itemText}>Category: {item.category}</Text>
-                  <Text style={lists.itemText}>Dosage: {item.dosage ?? "-"}</Text>
-                  <Text style={lists.itemText}>Manufacturer: {item.manufacturer ?? "-"}</Text>
-                </View>
+            // Format expiry date to readable string
+            const formattedExpiry = expiry.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            });
 
-                <View style={lists.rightSection}>
-                  <Text style={lists.itemText}>Qty: {item.quantity}</Text>
-                  <Text style={lists.itemText}>Stock: {item.stockQuantity ?? 0}</Text>
-                  <Text style={lists.itemText}>Price: ${item.price}</Text>
-                  <Text style={[lists.itemText, { color: expiryColor }]}>{expiryText}</Text>
+            // Determine expiry text, color, and font style
+            // Determine expiry status
+            const getExpiryStatus = (daysToExpiry: number) => {
+              if (daysToExpiry <= 0) {
+                return { text: "Expired", color: "#000000", fontWeight: "bold" as const };
+              } else if (daysToExpiry <= 30) {
+                return { text: "Near Expiry", color: "#dc3939", fontWeight: "600" as const };
+              } else if (daysToExpiry <= 90) {
+                return { text: "Expiring Soon", color: "#e6a23c", fontWeight: "500" as const };
+              } else {
+                return { text: "Valid", color: "#4CAF50", fontWeight: "500" as const };
+              }
+            };
 
-                  {/* Update & Delete buttons */}
-                  <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
-                    <Pressable
-                      onPress={() => Alert.alert("Update pressed")}
-                      style={{ backgroundColor: "#3A3A3A", padding: 6, borderRadius: 6 }}
-                    >
-                      <Text style={{ color: "white" }}>Update</Text>
-                    </Pressable>
+            const expiryStatus = getExpiryStatus(daysToExpiry);
 
-                    <Pressable
-                      onPress={() => handleDeletePress(item)}
-                      style={{ backgroundColor: "#dc3939", padding: 6, borderRadius: 6 }}
-                    >
-                      <Text style={{ color: "white" }}>Delete</Text>
-                    </Pressable>
-                  </View>
+          return (
+            <View style={lists.listItem}>
+              <View style={lists.leftSection}>
+                <Text style={lists.itemName}>{item.name}</Text>
+                <Text style={lists.itemText}>Category: {item.category}</Text>
+                <Text style={lists.itemText}>Dosage: {item.dosage ?? "-"}</Text>
+                <Text style={lists.itemText}>Manufacturer: {item.manufacturer ?? "-"}</Text>
+              </View>
+
+              <View style={lists.rightSection}>
+                <Text style={lists.itemText}> Amount: {item.quantity} {dosageUnits[item.dosage] ?? ""}</Text>
+                <Text style={lists.itemText}>Stock: {item.stockQuantity ?? 0}</Text>
+                <Text style={lists.itemText}>Price: ${item.price}</Text>
+                <Text style={{ fontSize: 14, color: expiryStatus.color, fontWeight: expiryStatus.fontWeight }}>{expiryStatus.text} ({formattedExpiry})</Text>
+
+                {/* Update & Delete buttons */}
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
+                  <Pressable
+                    onPress={() => {
+                      setEditingItem(item);
+                      setUpdateModalVisible(true);
+                    }}
+                    style={{ backgroundColor: "#3A3A3A", padding: 6, borderRadius: 6 }}
+                  >
+                    <Text style={{ color: "white" }}>Update</Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => handleDeletePress(item)}
+                    style={{ backgroundColor: "#dc3939", padding: 6, borderRadius: 6 }}
+                  >
+                    <Text style={{ color: "white" }}>Delete</Text>
+                  </Pressable>
                 </View>
               </View>
-            );
-          }}
-        />
+            </View>
+          );
+        }}
+      />
+
 
         {/* DELETE MODAL */}
         <DeleteModal
@@ -283,31 +358,139 @@ export default function Inventory() {
 
 // === Styles (unchanged) ===
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#252525", alignItems: "center" },
-  backBtn: { position: "absolute", top: 28, left: 20, padding: 8, zIndex: 10 },
-  title: { alignSelf: "center", marginTop: 35, fontSize: 26, color: "white", fontWeight: "bold" },
-  search: { height: 50, width: "100%", backgroundColor: "white", borderRadius: 12, paddingHorizontal: 12, marginTop: 15 },
-  SecondCont: { justifyContent: "center", alignItems: "center", gap: 10, marginTop: 20, width: "85%" },
-  RowContainer: { flexDirection: "row", justifyContent: "space-between", gap: 8, flex: 1 },
-  filter: { flex: 1, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", alignItems: "center" },
-  sort: { flex: 1, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", alignItems: "center" },
-  btnText: { color: "white", fontSize: 16, fontWeight: "500", textAlign: "center" },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.79)", justifyContent: "center", alignItems: "center" },
-  modalBox: { width: 320, backgroundColor: "white", borderRadius: 12, padding: 20 },
-  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 15 },
-  chipContainer: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  chip: { paddingVertical: 8, paddingHorizontal: 14, backgroundColor: "#f0f0f0", borderRadius: 20 },
-  chipSelected: { backgroundColor: "#252525" },
-  chipText: { fontSize: 16, color: "#333" },
-  chipTextSelected: { color: "white", fontWeight: "bold" },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#252525", 
+    alignItems: "center" 
+  },
+  backBtn: { 
+    position: "absolute", 
+    top: 28, 
+    left: 20, 
+    padding: 8, 
+    zIndex: 10 
+  },
+  title: { 
+    alignSelf: "center",
+    marginTop: 35, 
+    fontSize: 26, 
+    color: "white", 
+    fontWeight: "bold" 
+  },
+  search: { 
+    height: 50, 
+    width: "100%", 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    paddingHorizontal: 12, 
+    marginTop: 15 
+  },
+  SecondCont: { 
+    justifyContent: "center", 
+    alignItems: "center", 
+    gap: 10, 
+    marginTop: 20, 
+    width: "85%" 
+  },
+  RowContainer: { 
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    gap: 8, 
+    flex: 1 
+  },
+  filter: { 
+    flex: 1, 
+    height: 50, 
+    backgroundColor: "#3A3A3A", 
+    borderRadius: 12, 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
+  sort: { 
+    flex: 1, 
+    height: 50, 
+    backgroundColor: "#3A3A3A", 
+    borderRadius: 12, 
+    justifyContent: "center", 
+    alignItems: "center" },
+  btnText: { 
+    color: "white", 
+    fontSize: 16, 
+    fontWeight: "500", 
+    textAlign: "center" },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: "rgba(0,0,0,0.79)",
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
+  modalBox: { 
+    width: 320, 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    padding: 20 
+  },
+  modalTitle: { 
+    fontSize: 20, 
+    fontWeight: "bold", 
+    marginBottom: 15 
+  },
+  chipContainer: { 
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    gap: 10 
+  },
+  chip: { 
+    paddingVertical: 8, 
+    paddingHorizontal: 14, 
+    backgroundColor: "#f0f0f0", 
+    borderRadius: 20 
+  },
+  chipSelected: { 
+    backgroundColor: "#252525" 
+  },
+  chipText: { 
+    fontSize: 16, 
+    color: "#333" 
+  },
+  chipTextSelected: { 
+    color: "white", 
+    fontWeight: "bold" 
+  },
 });
 
 const lists = StyleSheet.create({
-  listItem: { backgroundColor: "white", padding: 20, borderRadius: 12, marginVertical: 5, width: "92%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  leftSection: { flex: 2, justifyContent: "space-between", gap: 10 },
-  rightSection: { flex: 1, justifyContent: "space-between", alignItems: "flex-end", gap: 10 },
-  itemName: { fontSize: 16, fontWeight: "500" },
-  itemText: { fontSize: 14, color: "#555" },
+  listItem: { 
+    backgroundColor: "white", 
+    padding: 20, 
+    borderRadius: 12, 
+    marginVertical: 5, 
+    width: "92%", 
+    alignSelf: "center", 
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 4, 
+    elevation: 2 },
+  leftSection: { 
+    flex: 2, 
+    justifyContent: "space-between", 
+    gap: 10 },
+  rightSection: { 
+    flex: 1, 
+    justifyContent: "space-between", 
+    alignItems: "flex-end", 
+    gap: 10 },
+  itemName: { 
+    fontSize: 16, 
+    fontWeight: "500" 
+  },
+  itemText: { 
+    fontSize: 14, 
+    color: "#555" 
+  },
 });
 
 const deleteStyles = StyleSheet.create({

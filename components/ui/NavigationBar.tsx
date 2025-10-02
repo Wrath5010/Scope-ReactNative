@@ -26,7 +26,7 @@ export default function NavigationBar() {
 
   // Side menu items (with icons)
   const menuItems = [
-    { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png") },
+    { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png"),  },
     { label: "Delete Medicine", onPress: () => router.push("/InventoryPage?deletemode=true"), icon: require("@/assets/images/Delete-medicine.png") },
     { label: "Inventory", onPress: () => router.push("/InventoryPage"), icon: require("@/assets/images/Inventory.png") },
     { label: "Notification", onPress: () => router.push("/Notification"), icon: require("@/assets/images/Notification.png") },
@@ -44,7 +44,7 @@ export default function NavigationBar() {
         disabled={isActive("/InventoryPage")}
         style={({ pressed }) => [{ opacity: pressed && !isActive("/InventoryPage") ? 0.5 : 1 }]}
       >
-        <FontAwesome5 name="clipboard-list" size={24} color="white" />
+        <FontAwesome5 name="clipboard-list" size={24} color="white" style={{ opacity: isActive("/InventoryPage") ? 0.5 : 1 }}/>
       </Pressable>
 
       {/* Add */}
@@ -53,7 +53,7 @@ export default function NavigationBar() {
         disabled={isActive("/AddMedicine")}
         style={({ pressed }) => [{ opacity: pressed && !isActive("/AddMedicine") ? 0.5 : 1 }]}
       >
-        <Ionicons name="add-circle" size={24} color="white" />
+        <Ionicons name="add-circle" size={24} color="white" style={{ opacity: isActive("/AddMedicine") ? 0.5 : 1 }}/>
       </Pressable>
 
       {/* Home */}

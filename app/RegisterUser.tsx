@@ -36,7 +36,7 @@ export default function RegisterUser() {
   }
 
   try {
-    const response = await fetch("http://192.168.68.102:5000/users", {
+    const response = await fetch("http://192.168.68.110:5000/api/auth/Register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),

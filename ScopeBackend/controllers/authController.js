@@ -52,4 +52,6 @@ const getProfile = async (req, res) => {
   else res.status(404).json({ message: "User not found" });
 };
 
+
+
 module.exports = { registerUser, loginUser, getProfile };
