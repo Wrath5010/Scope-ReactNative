@@ -13,7 +13,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import NavigationBar from "@/components/ui/NavigationBar";
 import Confirmation from "@/components/ui/Confirmation";
-import CategorySelector from "@/components/ui/CategorySelector";
+
+// Define the UserData type (making it simple, only pharmacists added and one admin)
+type UserData = {
+  fullName: string;
+  email: string;
+  password: string;
+  role: "pharmacist"; 
+};
 
 export default function RegisterUser() {
   const router = useRouter();
@@ -21,50 +28,58 @@ export default function RegisterUser() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"pharmacist" | "admin">("pharmacist"); // default
-  const [roleVisible, setRoleVisible] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const roles: ("pharmacist" | "admin")[] = ["pharmacist", "admin"];
-
-  const userData = { fullName, email, password, role };
+  // All users added through this form will be pharmacists
+  const userData: UserData = { 
+    fullName, 
+    email, 
+    password, 
+    role: "pharmacist" 
+  };
 
   const handleRegister = async () => {
-  if (!fullName || !email || !password || !role) {
-    Alert.alert("Error", "Please fill in all required fields.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://192.168.68.110:5000/api/auth/Register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
-
-    // Check if response is OK first
-    if (response.ok) {
-      const data = await response.json();
-      Alert.alert("Success", `User registered successfully! Role: ${data.user.role}`);
-      router.push("/Dashboard");
-    } else {
-      // Try to parse error JSON, fallback to text if parsing fails
-      let errorMessage = "Unknown error";
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } catch {
-        const text = await response.text();
-        errorMessage = text || errorMessage;
-      }
-      Alert.alert("Error", `Failed to register: ${errorMessage}`);
+    if (!fullName || !email || !password) {
+      Alert.alert("Error", "Please fill in all required fields.");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    Alert.alert("Error", "Failed to register user. Please check your network and try again.");
-  }
-};
 
+    try {
+      const response = await fetch(
+        "http://192.168.68.119:5000/api/auth/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        Alert.alert(
+          "Success",
+          `User registered successfully! Role: ${data.user.role}`
+        );
+        router.push("/Dashboard");
+      } else {
+        let errorMessage = "Unknown error";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          const text = await response.text();
+          errorMessage = text || errorMessage;
+        }
+        Alert.alert("Error", `Failed to register: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Error",
+        "Failed to register user. Please check your network and try again."
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={{ backgroundColor: "#252525", flex: 1 }}>
@@ -91,6 +106,7 @@ export default function RegisterUser() {
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -100,27 +116,7 @@ export default function RegisterUser() {
           secureTextEntry
           value={password}
           onChangeText={setPassword}
-        />
-
-        {/* Role selector */}
-        <Pressable
-          style={styles.categorybtn}
-          onPress={() => setRoleVisible(true)}
-        >
-          <Text style={styles.categoryText}>
-            Role: {role.charAt(0).toUpperCase() + role.slice(1)}
-          </Text>
-        </Pressable>
-
-        <CategorySelector
-          visible={roleVisible}
-          onClose={() => setRoleVisible(false)}
-          selected={role}
-          onSelect={(r) => {
-            setRole(r as "pharmacist" | "admin");
-            setRoleVisible(false);
-          }}
-          categories={roles}
+          autoCapitalize="none"
         />
 
         {/* Buttons */}
@@ -132,7 +128,7 @@ export default function RegisterUser() {
           <Pressable
             style={styles.confirmbtn}
             onPress={() => {
-              if (!fullName || !email || !password || !role) {
+              if (!fullName || !email || !password) {
                 Alert.alert("Error", "Please fill in all fields.");
                 return;
               }
@@ -184,24 +180,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 20,
     marginTop: 20,
-  },
-  categorybtn: {
-    flex: 1,
-    height: 50,
-    backgroundColor: "#3A3A3A",
-    borderRadius: 12,
-    justifyContent: "center",
-    paddingHorizontal: 12,
-    marginTop: 20,
-    marginHorizontal: 40,
-    width: "50%",
-    alignSelf: "flex-start",
-  },
-  categoryText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-    paddingHorizontal: 20,
   },
   cancelbtn: {
     paddingHorizontal: 12,

@@ -49,7 +49,7 @@ export default function Statistics() {
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const response = await fetch("http://192.168.68.118:5000/api/medicines", { headers });
+        const response = await fetch("http://192.168.68.119:5000/api/medicines", { headers });
         const text = await response.text();
 
         let data: Medicine[];
@@ -127,59 +127,43 @@ export default function Statistics() {
           />
         </View>
 
-        <View style={styles.box}>
-            <View style={styles.boxsec}>
+        <View style={styles.summaryContainer}>
+          {/* Box 1 – Total Stock Value */}
+          <Pressable style={styles.summaryBox}>
+            <Image style={styles.icon} />
+            <Text style={styles.summaryLabel}>Total Stock Value</Text>
+            {/*<Text style={styles.summaryValue}>
+              ${medicines.reduce((sum, med) => sum + (med.stockQuantity * (med.price || 0)), 0).toFixed(2)}
+            </Text>*/}
+          </Pressable>
 
-              <Pressable>
-                <Image></Image>
-                <Text>Total Stock Value:</Text>
-              </Pressable>
+          {/* Box 2 – Total Medicines */}
+          <Pressable style={styles.summaryBox}>
+            <Image style={styles.icon} />
+            <Text style={styles.summaryLabel}>Total Medicines</Text>
+            {/*<Text style={styles.summaryValue}>{medicines.length}</Text>*/}
+          </Pressable>
 
-              <Pressable>
-                <Image></Image>
-                <Text>Total Stock Value:</Text>
-              </Pressable>
+          {/* Box 3 – Low Stock */}
+          <Pressable style={styles.summaryBox}>
+            <Image style={styles.icon} />
+            <Text style={styles.summaryLabel}>Low Stock</Text>
+            {/*<Text style={styles.summaryValue}>
+              {medicines.filter(med => med.stockQuantity <= 5).length}
+            </Text>*/}
+          </Pressable>
 
-            </View>
-            <View style={styles.boxsec}>
-
-              <Pressable>
-                <Image></Image>
-                <Text>Total Stock Value:</Text>
-              </Pressable>
-
-              <Pressable>
-                <Image></Image>
-                <Text>Total Stock Value:</Text>
-              </Pressable>
-
-            </View>
+          {/* Box 4 – Expired */}
+          <Pressable style={styles.summaryBox}>
+            <Image style={styles.icon} />
+            <Text style={styles.summaryLabel}>Expired</Text>
+            <Text style={styles.summaryValue}>
+              {/*{medicines.filter(med => new Date(med.expiryDate) < new Date()).length}*/}
+            </Text>
+          </Pressable>
         </View>
 
-        <View style={styles.box}>
-            <View style={styles.boxsec}>
-              
-              <View>
-                <Text>Low Stock:</Text>
-              </View>
-
-              <View>
-                <Text>Go to Inventory</Text>
-              </View>
-            </View>
-            <View style={styles.boxsec}>
-
-              <View>
-                <Text>Expired:</Text>
-              </View>
-
-              <View>
-
-              </View>
-
-            </View>
-        </View>
-
+        
 
       </ScrollView>
 
@@ -229,21 +213,38 @@ const styles = StyleSheet.create({
     top: 25, 
     left: 20 
   },
-  box: {
-    height: 'auto',
-    width: "90%",
-    marginVertical: 20,
-    borderRadius: 8,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  boxsec:{
-    height: 150,
-    width: '45%',
-    backgroundColor: '#252525',
-    borderColor: "white",
-    borderWidth: 2,
-    borderRadius: 12
-  }
+  summaryContainer: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  width: "90%",
+  marginVertical: 20,
+  gap: 15,
+},
+summaryBox: {
+  width: "47%", 
+  backgroundColor: "#333",
+  borderRadius: 12,
+  padding: 15,
+  alignItems: "center",
+  justifyContent: "center",
+},
+icon: {
+  width: 32,
+  height: 32,
+  marginBottom: 10,
+  backgroundColor: "#555", // placeholder color for now
+},
+summaryLabel: {
+  color: "#fff",
+  fontSize: 14,
+  marginBottom: 5,
+  textAlign: "center",
+},
+summaryValue: {
+  color: "#fff",
+  fontSize: 18,
+  fontWeight: "bold",
+},
+
 });

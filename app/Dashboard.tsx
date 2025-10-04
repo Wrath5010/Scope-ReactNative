@@ -11,7 +11,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [menuVisible, setMenuVisible] = useState(false);
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
-  const userName = user?.role === "admin" ? "Admin" : user?.name || "User";
+  const userName = user?.name === "admin" ? "Admin" : user?.name || "User";
 
   // Load user from AsyncStorage
   useEffect(() => {

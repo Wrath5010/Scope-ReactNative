@@ -65,7 +65,7 @@ export default function Inventory() {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch("http://192.168.68.110:5000/api/medicines", { headers });
+      const response = await fetch("http://192.168.68.119:5000/api/medicines", { headers });
       const text = await response.text();
 
       let data;
@@ -92,13 +92,13 @@ export default function Inventory() {
 
   useEffect(() => { fetchMedicines(); }, []);
 
-  //Update
+  //Update-------------
   const handleUpdateMedicine = async (data: Medicine) => {
   try {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("Not authenticated");
 
-    const response = await fetch(`http://192.168.68.110:5000/api/medicines/${data._id}`, {
+    const response = await fetch(`http://192.168.68.119:5000/api/medicines/${data._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -144,7 +144,7 @@ export default function Inventory() {
       if (!token) throw new Error("Not authenticated");
 
       const response = await fetch(
-        `http://192.168.68.110:5000/api/medicines/${itemToDelete._id}`,
+        `http://192.168.68.119:5000/api/medicines/${itemToDelete._id}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -320,16 +320,16 @@ export default function Inventory() {
                       setEditingItem(item);
                       setUpdateModalVisible(true);
                     }}
-                    style={{ backgroundColor: "#3A3A3A", padding: 6, borderRadius: 6 }}
+                    style={lists.updateBtn}
                   >
-                    <Text style={{ color: "white" }}>Update</Text>
+                    <Text style={{ color: "#00a6e8", fontWeight: "600" }}>Update</Text>
                   </Pressable>
 
                   <Pressable
                     onPress={() => handleDeletePress(item)}
-                    style={{ backgroundColor: "#dc3939", padding: 6, borderRadius: 6 }}
+                    style={lists.deleteBtn}
                   >
-                    <Text style={{ color: "white" }}>Delete</Text>
+                    <Text style={lists.btnText}>Delete</Text>
                   </Pressable>
                 </View>
               </View>
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
 const lists = StyleSheet.create({
   listItem: { 
     backgroundColor: "white", 
-    padding: 20, 
+    padding: 15, 
     borderRadius: 12, 
     marginVertical: 5, 
     width: "92%", 
@@ -472,13 +472,15 @@ const lists = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 }, 
     shadowOpacity: 0.1, 
     shadowRadius: 4, 
-    elevation: 2 },
+    elevation: 2,
+
+  },
   leftSection: { 
-    flex: 2, 
-    justifyContent: "space-between", 
-    gap: 10 },
-  rightSection: { 
     flex: 1, 
+    justifyContent: "space-between", 
+    gap: 5 },
+  rightSection: { 
+    flex: 2, 
     justifyContent: "space-between", 
     alignItems: "flex-end", 
     gap: 10 },
@@ -488,7 +490,26 @@ const lists = StyleSheet.create({
   },
   itemText: { 
     fontSize: 14, 
-    color: "#555" 
+    color: "#555",
+    
+  },
+  updateBtn: {
+    backgroundColor: "#e6f8ff",
+    borderWidth: 1,
+    borderColor: "#00c8ff",
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+  },
+  deleteBtn: {
+    backgroundColor: "#dc3939",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  btnText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
 

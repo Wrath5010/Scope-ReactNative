@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
     try {
       {/*Change localhost to computer's IP or phone IP */}
-      const response = await fetch("http://192.168.68.118:5000/api/auth/login", {
+      const response = await fetch("http://192.168.68.119:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -103,6 +103,7 @@ export default function LoginScreen() {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+              autoCapitalize="none"
             />
 
             <Pressable style={styles.button} onPress={handleLogin}>

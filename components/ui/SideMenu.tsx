@@ -60,13 +60,13 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRo
             ))}
 
             {/* Show Create User ONLY if admin */}
-            {userRole?.toLowerCase() === "admin" && (
+            {["admin", "superadmin"].includes(userRole?.toLowerCase() || "") && (
               <Pressable style={styles.menuItem} onPress={handleCreateUser}>
                 <Text style={[styles.menuText, { color: "#00c8ff" }]}>Create User</Text>
               </Pressable>
             )}
 
-            {userRole?.toLowerCase() === "admin" && (
+            {["admin", "superadmin"].includes(userRole?.toLowerCase() || "") && (
               <Pressable style={styles.menuItem} onPress={() => router.push("/Users")}>
                 <Text style={[styles.menuText, { color: "#00c8ff" }]}>Users</Text>
               </Pressable>
@@ -94,12 +94,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     height: "100%",
   },
-  menuheader: { fontSize: 26, fontWeight: "700", color: "white", padding: 15 },
-  menuItem: { paddingVertical: 5 },
-  menuText: { fontSize: 18, fontWeight: "400", color: "white", padding: 15 },
-  menuRow: { flexDirection: "row", alignItems: "center" },
-  icon: { width: 30, height: 30, marginRight: 10, resizeMode: "contain" },
-  transparentArea: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.42)" },
+  menuheader: { 
+    fontSize: 26, 
+    fontWeight: "700", 
+    color: "white", 
+    padding: 15 
+  },
+  menuItem: { 
+    paddingVertical: 5 
+  },
+  menuText: { 
+    fontSize: 18, 
+    fontWeight: "400", 
+    color: "white", 
+    padding: 15 
+  },
+  menuRow: { 
+    flexDirection: "row", 
+    alignItems: "center" 
+  },
+  icon: { 
+    width: 30, 
+    height: 30, 
+    marginRight: 10, 
+    resizeMode: "contain" 
+  },
+  transparentArea: { 
+    flex: 1, 
+    backgroundColor: "rgba(0, 0, 0, 0.42)" 
+  },
   logoutbtn: {},
-  logoutText: { fontSize: 18, fontWeight: "600", color: "#e61717ff", padding: 15 },
+  logoutText: { 
+    fontSize: 18, 
+    fontWeight: "600", 
+    color: "#e61717ff", 
+    padding: 15 
+  },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -7,17 +7,15 @@ import {
   Pressable,
   StyleSheet,
 } from "react-native";
-import CategorySelector from "@/components/ui/CategorySelector"; // reuse role selector
 
 interface UpdateUserModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: { _id: string; fullName: string; email: string; password?: string }) => void;
   initialData: {
     _id: string;
-    fullName: string;
+    name: string;
     email: string;
-    role: "admin" | "pharmacist";
   };
 }
 
@@ -27,31 +25,29 @@ export default function UpdateUserModal({
   onSave,
   initialData,
 }: UpdateUserModalProps) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"admin" | "pharmacist">("pharmacist");
-  const [roleVisible, setRoleVisible] = useState(false);
+  const [fullName, setFullName] = useState(initialData.name);
+  const [email, setEmail] = useState(initialData.email);
+  const [password, setPassword] = useState("");
 
+  // Update state if initialData changes
   useEffect(() => {
     if (initialData) {
-      setFullName(initialData.fullName || "");
+      setFullName(initialData.name || "");
       setEmail(initialData.email || "");
-      setRole(initialData.role || "pharmacist");
+      setPassword("");
     }
   }, [initialData]);
 
-  const roles: ("admin" | "pharmacist")[] = ["admin", "pharmacist"];
-
   const handleSave = () => {
-    if (!fullName || !email || !role) {
-      alert("Please fill in all fields.");
+    if (!fullName || !email) {
+      alert("Please fill in all required fields.");
       return;
     }
     onSave({
-      ...initialData,
+      _id: initialData._id,
       fullName,
       email,
-      role,
+      password: password || undefined,
     });
   };
 
@@ -74,26 +70,16 @@ export default function UpdateUserModal({
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            autoCapitalize="none"
           />
 
-          <Pressable
-            style={styles.selectorButton}
-            onPress={() => setRoleVisible(true)}
-          >
-            <Text style={styles.selectorText}>
-              Role: {role.charAt(0).toUpperCase() + role.slice(1)}
-            </Text>
-          </Pressable>
-
-          <CategorySelector
-            visible={roleVisible}
-            onClose={() => setRoleVisible(false)}
-            selected={role}
-            onSelect={(r) => {
-              setRole(r as "admin" | "pharmacist");
-              setRoleVisible(false);
-            }}
-            categories={roles}
+          <TextInput
+            style={styles.input}
+            placeholder="New Password (optional)"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
           />
 
           <View style={styles.buttonRow}>
@@ -136,19 +122,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     backgroundColor: "white",
-  },
-  selectorButton: {
-    height: 50,
-    backgroundColor: "#3A3A3A",
-    borderRadius: 12,
-    justifyContent: "center",
-    paddingHorizontal: 12,
-    marginBottom: 10,
-  },
-  selectorText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
   },
   buttonRow: {
     flexDirection: "row",
