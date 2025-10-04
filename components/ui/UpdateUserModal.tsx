@@ -85,17 +85,18 @@ export default function UpdateUserModal({
           <View style={styles.buttonRow}>
             <Pressable
               onPress={onClose}
-              style={[styles.btn, { backgroundColor: "#555" }]}
+              style={[styles.btn, { backgroundColor: "#DC3939" }]}
             >
               <Text style={styles.btnText}>Cancel</Text>
             </Pressable>
             <Pressable
               onPress={handleSave}
-              style={[styles.btn, { backgroundColor: "#3A8" }]}
+              style={[styles.btn, { backgroundColor: "#4CAF50" }]}
             >
               <Text style={styles.btnText}>Save</Text>
             </Pressable>
           </View>
+
         </View>
       </View>
     </Modal>
@@ -111,11 +112,21 @@ const styles = StyleSheet.create({
   },
   modalBox: {
     width: "85%",
+    height: '70%',
     backgroundColor: "#252525",
     borderRadius: 12,
     padding: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20
   },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 12, color: "white" },
+  title: { 
+    fontSize: 26, 
+    fontWeight: "bold", 
+    marginBottom: 30, 
+    color: "white", 
+    alignSelf: 'center'
+  },
   input: {
     borderColor: "#ccc",
     borderRadius: 8,
@@ -131,9 +142,12 @@ const styles = StyleSheet.create({
   btn: {
     flex: 1,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     marginHorizontal: 5,
     alignItems: "center",
+    justifyContent: 'flex-end',
+    paddingHorizontal: 12, 
+    paddingVertical: 15, 
   },
   btnText: { color: "white", fontWeight: "bold" },
 });

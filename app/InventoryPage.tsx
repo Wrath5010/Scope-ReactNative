@@ -8,6 +8,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
 import DeleteModal from "@/components/ui/DeleteModal";
 import UpdateModal from "@/components/ui/UpdateModal";
+import FilterModal from "@/components/ui/FilterModal";
+import SortModal from "@/components/ui/SortModal";
 
 const categories = [
   "All", "Antibiotics", "Painkillers", "Cough & Cold", "Allergy", 
@@ -210,49 +212,22 @@ export default function Inventory() {
           </View>
         </View>
 
-        {/* FILTER MODAL */}
-        <Modal visible={filterVisible} transparent animationType="fade">
-          <View style={styles.modalOverlay}>
-            <Pressable style={StyleSheet.absoluteFill} onPress={() => setFilterVisible(false)} />
-            <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>Filter by Category</Text>
-              <View style={styles.chipContainer}>
-                {categories.map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[styles.chip, selectedFilter === option && styles.chipSelected]}
-                    onPress={() => { setSelectedFilter(option); setFilterVisible(false); }}
-                  >
-                    <Text style={[styles.chipText, selectedFilter === option && styles.chipTextSelected]}>{option}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-            <Text style={{ color: "white", marginTop: 20 }}>Tap outside to exit</Text>
-          </View>
-        </Modal>
 
-        {/* SORT MODAL */}
-        <Modal visible={sortVisible} transparent animationType="fade">
-          <View style={styles.modalOverlay}>
-            <Pressable style={StyleSheet.absoluteFill} onPress={() => setSortVisible(false)} />
-            <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>Sort by</Text>
-              <View style={styles.chipContainer}>
-                {sortOptions.map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[styles.chip, selectedSort === option && styles.chipSelected]}
-                    onPress={() => { setSelectedSort(option); setSortVisible(false); }}
-                  >
-                    <Text style={[styles.chipText, selectedSort === option && styles.chipTextSelected]}>{option}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-            <Text style={{ color: "white", marginTop: 20 }}>Tap outside to exit</Text>
-          </View>
-        </Modal>
+        <FilterModal
+          visible={filterVisible}
+          options={categories}
+          selectedOption={selectedFilter}
+          onSelect={setSelectedFilter}
+          onClose={() => setFilterVisible(false)}
+        />
+
+        <SortModal
+          visible={sortVisible}
+          options={sortOptions}
+          selectedOption={selectedSort}
+          onSelect={setSelectedSort}
+          onClose={() => setSortVisible(false)}
+        />
 
         <UpdateModal
           visible={updateModalVisible}
@@ -354,8 +329,6 @@ export default function Inventory() {
   );
 }
 
-
-// === Styles (unchanged) ===
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -411,52 +384,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#3A3A3A", 
     borderRadius: 12, 
     justifyContent: "center", 
-    alignItems: "center" },
+    alignItems: "center" 
+  },
   btnText: { 
     color: "white", 
     fontSize: 16, 
     fontWeight: "500", 
-    textAlign: "center" },
-  modalOverlay: { 
-    flex: 1, 
-    backgroundColor: "rgba(0,0,0,0.79)",
-    justifyContent: "center", 
-    alignItems: "center" 
-  },
-  modalBox: { 
-    width: 320, 
-    backgroundColor: "white", 
-    borderRadius: 12, 
-    padding: 20 
-  },
-  modalTitle: { 
-    fontSize: 20, 
-    fontWeight: "bold", 
-    marginBottom: 15 
-  },
-  chipContainer: { 
-    flexDirection: "row", 
-    flexWrap: "wrap", 
-    gap: 10 
-  },
-  chip: { 
-    paddingVertical: 8, 
-    paddingHorizontal: 14, 
-    backgroundColor: "#f0f0f0", 
-    borderRadius: 20 
-  },
-  chipSelected: { 
-    backgroundColor: "#252525" 
-  },
-  chipText: { 
-    fontSize: 16, 
-    color: "#333" 
-  },
-  chipTextSelected: { 
-    color: "white", 
-    fontWeight: "bold" 
+    textAlign: "center" 
   },
 });
+
 
 const lists = StyleSheet.create({
   listItem: { 

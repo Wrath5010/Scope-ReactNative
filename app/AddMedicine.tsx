@@ -280,22 +280,128 @@ export default function AddMedicine() {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#252525", alignItems: "center", gap: 15, paddingBottom: 80 },
-  backBtn: { position: "absolute", top: 28, left: 20, padding: 8, zIndex: 10 },
-  title: { alignSelf: "center", marginTop: 35, fontSize: 26, color: "white", fontWeight: "bold" },
-  input: { height: 50, width: "85%", backgroundColor: "white", borderRadius: 12, paddingHorizontal: 20, marginTop: 20 },
-  rowContainer: { flexDirection: "row", width: "95%", paddingHorizontal: 22, marginTop: 15, gap: 10 },
-  selectorButton: { flex: 2, height: 50, backgroundColor: "#3A3A3A", borderRadius: 12, justifyContent: "center", paddingHorizontal: 12 },
-  selectorText: { color: "white", fontSize: 16, textAlign: "center", flexWrap: 'wrap', },
-  priceInput: { flex: 1, height: 50, backgroundColor: "white", borderRadius: 12, paddingHorizontal: 10 },
-  quantityInput: { flex: 1, height: 50, backgroundColor: "white", borderRadius: 12, paddingHorizontal: 10 },
-  stockText: { color: "white", fontSize: 16, flex: 1, alignSelf: "center" },
-  stockContainer: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#3A3A3A", borderRadius: 12, paddingHorizontal: 10, height: 50 },
-  qButton: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "#252525", borderRadius: 8 },
-  qButtonText: { color: "white", fontSize: 18, fontWeight: "bold" },
-  qValue: { color: "white", fontSize: 16 },
-  buttonSection: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 20, borderRadius: 12, paddingHorizontal: 10, gap: 30, marginTop: 20 },
-  cancelButton: { paddingHorizontal: 12, paddingVertical: 15, backgroundColor: "#dc3939ff", borderRadius: 16, flex: 1 },
-  confirmButton: { paddingHorizontal: 12, paddingVertical: 15, backgroundColor: "#367154ff", borderRadius: 16, flex: 1, textAlign: "center" },
-  buttonText: { color: "black", fontSize: 18, textAlign: "center", fontWeight: "500" },
+  container: { 
+    backgroundColor: "#252525", 
+    alignItems: "center", 
+    gap: 15, 
+    paddingBottom: 80 
+  },
+  backBtn: { 
+    position: "absolute", 
+    top: 28, 
+    left: 20, 
+    padding: 8, 
+    zIndex: 10 
+  },
+  title: { 
+    alignSelf: "center", 
+    marginTop: 35, 
+    fontSize: 26, 
+    color: "white", 
+    fontWeight: "bold" 
+  },
+  input: { 
+    height: 50, 
+    width: "85%", 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    paddingHorizontal: 20, 
+    marginTop: 20 
+  },
+  rowContainer: { 
+    flexDirection: "row", 
+    width: "95%", 
+    paddingHorizontal: 22, 
+    marginTop: 15, 
+    gap: 10 
+  },
+  selectorButton: { 
+    flex: 2, 
+    height: 50, 
+    backgroundColor: "#3A3A3A", 
+    borderRadius: 12, 
+    justifyContent: "center", 
+    paddingHorizontal: 12 
+  },
+  selectorText: { 
+    color: "white", 
+    fontSize: 16, 
+    textAlign: "center", 
+    flexWrap: 'wrap', 
+  },
+  priceInput: { 
+    flex: 1, 
+    height: 50, 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    paddingHorizontal: 10 
+  },
+  quantityInput: { 
+    flex: 1, 
+    height: 50, 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    paddingHorizontal: 10 
+  },
+  stockText: { 
+    color: "white", 
+    fontSize: 16, 
+    flex: 1, 
+    alignSelf: "center" 
+  },
+  stockContainer: { 
+    flex: 1, 
+    flexDirection: "row", 
+    alignItems: "center", 
+    justifyContent: "space-between", 
+    backgroundColor: "#3A3A3A", 
+    borderRadius: 12, 
+    paddingHorizontal: 10, 
+    height: 50 
+  },
+  qButton: { 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    backgroundColor: "#252525", 
+    borderRadius: 8 
+  },
+  qButtonText: { 
+    color: "white", 
+    fontSize: 18, 
+    fontWeight: "bold" 
+  },
+  qValue: { 
+    color: "white", 
+    fontSize: 16 
+  },
+  buttonSection: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    justifyContent: "space-between", 
+    marginHorizontal: 20, 
+    borderRadius: 12, 
+    paddingHorizontal: 10, 
+    gap: 10, 
+    marginTop: 20 
+  },
+  cancelButton: { 
+    paddingHorizontal: 12, 
+    paddingVertical: 15, 
+    backgroundColor: "#DC3939", 
+    borderRadius: 12, 
+    flex: 1 
+  },
+  confirmButton: { 
+    paddingHorizontal: 12, 
+    paddingVertical: 15, 
+    backgroundColor: "#4CAF50", 
+    borderRadius: 12, flex: 1, 
+    textAlign: "center" 
+  },
+  buttonText: { 
+    color: "white", 
+    fontSize: 16, 
+    textAlign: "center", 
+    fontWeight: "500" 
+  },
 });

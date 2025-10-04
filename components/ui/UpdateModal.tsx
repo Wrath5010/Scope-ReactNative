@@ -201,13 +201,13 @@ export default function UpdateModal({
             <View style={styles.buttonRow}>
               <Pressable
                 onPress={onClose}
-                style={[styles.btn, { backgroundColor: "#dc3939ff" }]}
+                style={[styles.btn, { backgroundColor: "#DC3939" }]}
               >
                 <Text style={styles.btnText}>Cancel</Text>
               </Pressable>
               <Pressable
                 onPress={handleSave}
-                style={[styles.btn, { backgroundColor: "#367154ff" }]}
+                style={[styles.btn, { backgroundColor: "#4CAF50" }]}
               >
                 <Text style={styles.btnText}>Save</Text>
               </Pressable>
@@ -286,8 +286,9 @@ const styles = StyleSheet.create({
   selectorText: { 
     color: "white", 
     fontSize: 16, 
-    textAlign: "center" },
-  priceInput: {
+    textAlign: "center" 
+  },
+    priceInput: {
     flex: 1,
     height: 50,
     backgroundColor: "white",
@@ -332,8 +333,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   btnText: { 
-    color: "black", 
-    fontSize: 18, 
+    color: "white", 
+    fontSize: 16, 
     textAlign: "center", 
     fontWeight: "500" 
   },
