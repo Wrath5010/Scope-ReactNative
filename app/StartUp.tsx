@@ -10,7 +10,7 @@ export default function Startpage() {
   return (
     <View style={styles.page}>
       <View style={styles.container}>
-        <Image source={require('@/assets/images/icon.png')} style={styles.logo}></Image>
+        <Image source={require('@/assets/images/logo.png')} style={styles.logo}></Image>
       </View>
       <View style={styles.contsecond}>
         <Text style={styles.Maintext}>Manage, Track, and Protect Your Inventory.</Text>
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain'
   },
   Maintext: {
-    fontSize: 30,
+    fontSize: 26,
     marginTop: 20,
     fontWeight: 'bold'
   },

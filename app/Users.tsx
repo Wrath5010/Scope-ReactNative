@@ -33,7 +33,7 @@ export default function Users() {
       const token = await AsyncStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch("http://192.168.68.119:5000/api/users", {
+      const res = await fetch("http://192.168.68.106:5000/api/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -76,7 +76,7 @@ export default function Users() {
               if (!token) return;
 
               const res = await fetch(
-                `http://192.168.68.119:5000/api/users/${user._id}`,
+                `http://192.168.68.106:5000/api/users/${user._id}`,
                 {
                   method: "DELETE",
                   headers: { Authorization: `Bearer ${token}` },
@@ -160,7 +160,7 @@ export default function Users() {
 
                 // Call backend to update user
                 const res = await fetch(
-                  `http://192.168.68.119:5000/api/users/${updatedUser._id}`,
+                  `http://192.168.68.106:5000/api/users/${updatedUser._id}`,
                   {
                     method: "PUT",
                     headers: {

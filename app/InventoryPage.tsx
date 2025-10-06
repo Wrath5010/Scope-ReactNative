@@ -46,11 +46,15 @@ export default function Inventory() {
   const [itemToDelete, setItemToDelete] = useState<Medicine | null>(null);
   
   const { deleteMode } = useLocalSearchParams<{ deleteMode?: string }>();
+  //Global delete (still working on it)
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Medicine | null>(null);
+  //Statistics summary
+  const { filter } = useLocalSearchParams();
+
 
   const dosageUnits: Record<string, string> = {
     Tablet: "pcs",
@@ -67,7 +71,7 @@ export default function Inventory() {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch("http://192.168.68.119:5000/api/medicines", { headers });
+      const response = await fetch("http://192.168.68.106:5000/api/medicines", { headers });
       const text = await response.text();
 
       let data;
@@ -100,7 +104,7 @@ export default function Inventory() {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("Not authenticated");
 
-    const response = await fetch(`http://192.168.68.119:5000/api/medicines/${data._id}`, {
+    const response = await fetch(`http://192.168.68.106:5000/api/medicines/${data._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -146,7 +150,7 @@ export default function Inventory() {
       if (!token) throw new Error("Not authenticated");
 
       const response = await fetch(
-        `http://192.168.68.119:5000/api/medicines/${itemToDelete._id}`,
+        `http://192.168.68.106:5000/api/medicines/${itemToDelete._id}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -164,24 +168,59 @@ export default function Inventory() {
     }
   };
 
-  // === FILTER, SEARCH, SORT ===
   const displayedData = useMemo(() => {
-    let result = [...medicines];
+  let result = [...medicines];
 
-    if (selectedFilter !== "All") result = result.filter(item => item.category === selectedFilter);
-    if (searchQuery.trim() !== "") result = result.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    switch (selectedSort) {
-      case "A-Z": result.sort((a,b) => a.name.localeCompare(b.name)); break;
-      case "Z-A": result.sort((a,b) => b.name.localeCompare(a.name)); break;
-      case "High Stock": result.sort((a,b) => (b.quantity ?? 0) - (a.quantity ?? 0)); break;
-      case "Low Stock": result.sort((a,b) => (a.quantity ?? 0) - (b.quantity ?? 0)); break;
-      case "Expiring Soon": result.sort((a,b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()); break;
-      case "Expiring Later": result.sort((a,b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()); break;
+  // --- Handle special filters from Statistics Page ---
+  if (filter === "lowStock") {
+    result = result.filter((item) => item.stockQuantity <= 50);
+  } else if (filter === "expired") {
+    result = result.filter((item) => new Date(item.expiryDate) < new Date());
+  } else {
+    // Regular user-selected filter
+    if (selectedFilter !== "All") {
+      result = result.filter((item) => item.category === selectedFilter);
     }
+  }
 
-    return result;
-  }, [medicines, searchQuery, selectedFilter, selectedSort]);
+  // --- Search ---
+  if (searchQuery.trim() !== "") {
+    result = result.filter((item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
+  // --- Sort ---
+  switch (selectedSort) {
+    case "A-Z":
+      result.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "Z-A":
+      result.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "High Stock":
+      result.sort((a, b) => (b.stockQuantity ?? 0) - (a.stockQuantity ?? 0));
+      break;
+    case "Low Stock":
+      result.sort((a, b) => (a.stockQuantity ?? 0) - (b.stockQuantity ?? 0));
+      break;
+    case "Expiring Soon":
+      result.sort(
+        (a, b) =>
+          new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()
+      );
+      break;
+    case "Expiring Later":
+      result.sort(
+        (a, b) =>
+          new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
+      );
+      break;
+  }
+
+  return result;
+}, [medicines, searchQuery, selectedFilter, selectedSort, filter]);
+
 
   return (
     <SafeAreaView style={{ backgroundColor: "#252525", flex: 1 }}>
@@ -238,6 +277,16 @@ export default function Inventory() {
           onSave={handleUpdateMedicine}
           initialData={editingItem}
         />
+
+        {filter && (
+          <Text style={styles.filterindicator}>
+            {filter === "lowStock"
+              ? "Showing Low Stock Medicines"
+              : filter === "expired"
+              ? "Showing Expired Medicines"
+              : ""}
+          </Text>
+        )}
 
 
         {/* MEDICINE LIST */}
@@ -311,6 +360,7 @@ export default function Inventory() {
             </View>
           );
         }}
+
       />
 
 
@@ -392,6 +442,15 @@ const styles = StyleSheet.create({
     fontWeight: "500", 
     textAlign: "center" 
   },
+  filterindicator:{
+    color: 'white',
+    height: 50,
+    width: '85%',
+    backgroundColor: '#3A3A3A',
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    borderRadius: 12
+  }
 });
 
 

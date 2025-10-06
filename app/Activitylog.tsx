@@ -20,6 +20,8 @@ export default function Activitylog() {
         </Pressable>
         
         <Text style={styles.title}>Activity Log</Text>
+
+        <TextInput/>
     </View>
     <NavigationBar></NavigationBar>
     </SafeAreaView>

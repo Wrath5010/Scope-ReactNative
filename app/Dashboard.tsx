@@ -46,7 +46,7 @@ export default function Dashboard() {
           </Pressable>
 
           {/* Right: Logo */}
-          <Image style={styles.logo} source={require("@/assets/images/icon.png")} />
+          <Image style={styles.logo} source={require("@/assets/images/logo.png")} />
         </View>
 
         {/* Header text block */}

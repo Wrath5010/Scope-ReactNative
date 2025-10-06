@@ -28,7 +28,7 @@ const createMedicine = async (req, res) => {
     const medicine = new InventoryMedicine(req.body);
     await medicine.save();
 
-    // Optional: log activity
+    //log activity
     if (req.user) {
       await ActivityLog.create({
         userId: req.user.id,
@@ -51,7 +51,7 @@ const updateMedicine = async (req, res) => {
     const medicine = await InventoryMedicine.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!medicine) return res.status(404).json({ message: "Medicine not found" });
 
-    // Optional: log activity
+    //log activity
     if (req.user) {
       await ActivityLog.create({
         userId: req.user.id,
@@ -74,7 +74,7 @@ const deleteMedicine = async (req, res) => {
     const medicine = await InventoryMedicine.findByIdAndDelete(req.params.id);
     if (!medicine) return res.status(404).json({ message: "Medicine not found" });
 
-    // Optional: log activity
+    //log activity
     if (req.user) {
       await ActivityLog.create({
         userId: req.user.id,

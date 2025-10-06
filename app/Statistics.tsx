@@ -13,6 +13,8 @@ interface Medicine {
   name: string;
   category: string;
   stockQuantity: number;
+  price?: number;
+  expiryDate?: string;
 }
 
 interface BarDataItem {
@@ -25,6 +27,11 @@ interface BarDataItem {
 export default function Statistics() {
   const router = useRouter();
   const [barData, setBarData] = useState<BarDataItem[]>([]);
+
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  
 
   const colors = ["#6a11cb", "#177AD5", "#ff7e5f", "#43cea2", "#f7971e", "#56ab2f"];
 
@@ -42,32 +49,30 @@ export default function Statistics() {
   };
 
   useEffect(() => {
-    //Fetching data
     const fetchMedicinesForChart = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const response = await fetch("http://192.168.68.119:5000/api/medicines", { headers });
+        const response = await fetch("http://192.168.68.106:5000/api/medicines", { headers });
         const text = await response.text();
 
         let data: Medicine[];
         try {
           data = JSON.parse(text);
+          setMedicines(data);
         } catch {
           throw new Error("Failed to parse response as JSON: " + text);
         }
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-        // Aggregate quantities by category
         const categoryData = data.reduce((acc: Record<string, number>, item) => {
           acc[item.category] = (acc[item.category] || 0) + (item.stockQuantity ?? 0);
           return acc;
         }, {});
 
-        // Map to chart format with abbreviations
         const chartData: BarDataItem[] = Object.entries(categoryData).map(([category, value], index) => ({
           value,
           label: categoryAbbr[category] ?? category,
@@ -83,19 +88,31 @@ export default function Statistics() {
         } else {
           Alert.alert("Error", "An unknown error occurred while fetching medicines for chart.");
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMedicinesForChart();
   }, []);
 
+  // === Summary Calculations ===
+  const totalStockValue = medicines.reduce(
+    (sum, med) => sum + (med.stockQuantity * (med.price || 0)),
+    0
+  );
+  const totalMedicines = medicines.length;
+  const lowStockCount = medicines.filter(med => med.stockQuantity <= 50).length;
+  const expiredCount = medicines.filter(med => med.expiryDate && new Date(med.expiryDate) < new Date()).length;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
 
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={28} color="white" />
+          <Ionicons name="arrow-back" size={28} color="white" />
         </Pressable>
+
         <Text style={styles.title}>Inventory Statistics</Text>
 
         <View style={styles.barContainer}>
@@ -127,49 +144,52 @@ export default function Statistics() {
           />
         </View>
 
+        {/* === Summary Section === */}
         <View style={styles.summaryContainer}>
-          {/* Box 1 – Total Stock Value */}
-          <Pressable style={styles.summaryBox}>
-            <Image style={styles.icon} />
+          <View style={styles.summaryBox}>
+            <Image style={styles.icon} source={require('@/assets/images/total-value.png')}/>
             <Text style={styles.summaryLabel}>Total Stock Value</Text>
-            {/*<Text style={styles.summaryValue}>
-              ${medicines.reduce((sum, med) => sum + (med.stockQuantity * (med.price || 0)), 0).toFixed(2)}
-            </Text>*/}
-          </Pressable>
+            <Text style={styles.summaryValue}>
+              {loading ? "..." : `$${totalStockValue.toFixed(2)}`}
+            </Text>
+          </View>
 
-          {/* Box 2 – Total Medicines */}
-          <Pressable style={styles.summaryBox}>
-            <Image style={styles.icon} />
+          <Pressable style={styles.summaryBox} onPress={() => router.push('/InventoryPage')}>
+            <Image style={styles.icon} source={require('@/assets/images/medicines.png')}/>
             <Text style={styles.summaryLabel}>Total Medicines</Text>
-            {/*<Text style={styles.summaryValue}>{medicines.length}</Text>*/}
+            <Text style={styles.summaryValue}>
+              {loading ? "..." : totalMedicines}
+            </Text>
+            <Text style={styles.textlink}>Press to Inventory</Text>
           </Pressable>
 
-          {/* Box 3 – Low Stock */}
-          <Pressable style={styles.summaryBox}>
-            <Image style={styles.icon} />
+          <Pressable style={styles.summaryBox} onPress={() => router.push({ pathname: "/InventoryPage", params: { filter: "lowStock" }})}>
+            <Image style={styles.icon} source={require('@/assets/images/low-stock.png')}/>
             <Text style={styles.summaryLabel}>Low Stock</Text>
-            {/*<Text style={styles.summaryValue}>
-              {medicines.filter(med => med.stockQuantity <= 5).length}
-            </Text>*/}
+            <Text style={styles.summaryValue}>
+              {loading ? "..." : lowStockCount}
+            </Text>
+            <Text style={styles.textlink}>Press to Check</Text>
           </Pressable>
 
-          {/* Box 4 – Expired */}
-          <Pressable style={styles.summaryBox}>
-            <Image style={styles.icon} />
+          <Pressable style={styles.summaryBox} onPress={() => router.push({ pathname: "/InventoryPage", params: { filter: "expired" }})}>
+            <Image style={styles.icon} source={require('@/assets/images/expired.png')}/>
             <Text style={styles.summaryLabel}>Expired</Text>
             <Text style={styles.summaryValue}>
-              {/*{medicines.filter(med => new Date(med.expiryDate) < new Date()).length}*/}
+              {loading ? "..." : expiredCount}
             </Text>
+            <Text style={styles.textlink}>Press to Check</Text>
           </Pressable>
         </View>
 
-        
+
 
       </ScrollView>
 
       <NavigationBar />
     </SafeAreaView>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -223,17 +243,18 @@ const styles = StyleSheet.create({
 },
 summaryBox: {
   width: "47%", 
-  backgroundColor: "#333",
+  backgroundColor: "#252525",
   borderRadius: 12,
   padding: 15,
   alignItems: "center",
   justifyContent: "center",
+  borderColor: 'white',
+  borderWidth: 2
 },
 icon: {
-  width: 32,
-  height: 32,
+  width: 40,
+  height: 40,
   marginBottom: 10,
-  backgroundColor: "#555", // placeholder color for now
 },
 summaryLabel: {
   color: "#fff",
@@ -246,5 +267,10 @@ summaryValue: {
   fontSize: 18,
   fontWeight: "bold",
 },
+textlink:{
+  color: "#00a6e8",
+  fontWeight: "400",
+  fontSize: 12
+}
 
 });

@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
     try {
       {/*Change localhost to computer's IP or phone IP */}
-      const response = await fetch("http://192.168.68.119:5000/api/auth/login", {
+      const response = await fetch("http://192.168.68.106:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -49,8 +49,6 @@ export default function LoginScreen() {
       // Save user info somewhere (AsyncStorage or context)
       await AsyncStorage.setItem("userInfo", JSON.stringify(data.user));
 
-      // Log token to console --------REMOVE AFTER SORTED OUT ADD MEDICINE SITUATION
-      console.log("JWT token:", data.token);
       // Navigate to dashboard
       router.replace("/Dashboard");
     } catch (error) {
@@ -82,7 +80,7 @@ export default function LoginScreen() {
 
             <Image
               style={styles.logo}
-              source={require("@/assets/images/icon.png")}
+              source={require("@/assets/images/logo.png")}
             />
 
             <Text style={styles.title}>Login</Text>
@@ -117,9 +115,25 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  backBtn: { position: "absolute", top: 50, left: 20, padding: 8, zIndex: 10 },
-  logo: { height: 200, resizeMode: "contain", marginBottom: 10, marginLeft: 15 },
-  title: { fontSize: 28, fontWeight: "bold", color: "white", marginBottom: 30 },
+  backBtn: { 
+    position: "absolute", 
+    top: 50, 
+    left: 20, 
+    padding: 8, 
+    zIndex: 10 
+  },
+  logo: { 
+    height: 200, 
+    resizeMode: "contain", 
+    marginBottom: 10, 
+    marginLeft: 15 
+  },
+  title: { 
+    fontSize: 26, 
+    fontWeight: "bold", 
+    color: "white", 
+    marginBottom: 30 
+  },
   input: {
     width: "90%",
     height: 50,
@@ -129,6 +143,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
   },
-  button: { backgroundColor: "grey", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 10, marginTop: 10 },
-  buttonText: { color: "white", fontWeight: "bold", fontSize: 16 },
+  button: { 
+    backgroundColor: "grey", 
+    paddingVertical: 12, 
+    paddingHorizontal: 30, 
+    borderRadius: 10, 
+    marginTop: 10 
+  },
+  buttonText: { 
+    color: "white", 
+    fontWeight: "bold", 
+    fontSize: 16 
+  },
 });
