@@ -112,7 +112,7 @@ export default function AddMedicine() {
 
     console.log("Payload:", payload); // Debug: check before sending
 
-    const response = await fetch("http://192.168.68.110:5000/api/medicines", {
+    const response = await fetch("http://192.168.157.250:5000/api/medicines", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -194,6 +194,19 @@ export default function AddMedicine() {
         <View style={styles.rowContainer}>
 
           <TextInput
+            style={styles.quantityInput}
+            placeholder="Quantity"
+            placeholderTextColor="#888"
+            keyboardType="numeric"
+            value={quantity}
+            onChangeText={setQuantity}
+            mode="outlined"
+            right={<TextInput.Affix text={dosageUnits[dosage] || ""} />}
+            outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
+            theme={{ colors: { text: "black", placeholder: "#888" } }} 
+          />
+
+          <TextInput
             style={styles.priceInput}
             placeholder="Price"
             placeholderTextColor="#888"
@@ -202,19 +215,6 @@ export default function AddMedicine() {
             onChangeText={setPrice}
             left={<TextInput.Affix text="$ " />}
             mode="outlined"
-            outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
-            theme={{ colors: { text: "black", placeholder: "#888" } }} 
-          />
-
-          <TextInput
-            style={styles.quantityInput}
-            placeholder="Quantity"
-            placeholderTextColor="#888"
-            keyboardType="numeric"
-            value={quantity}
-            onChangeText={setQuantity}
-            mode="outlined"
-            left={<TextInput.Affix text={dosageUnits[dosage] || ""} />}
             outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
             theme={{ colors: { text: "black", placeholder: "#888" } }} 
           />

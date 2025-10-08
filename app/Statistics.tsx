@@ -55,7 +55,7 @@ export default function Statistics() {
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const response = await fetch("http://192.168.68.106:5000/api/medicines", { headers });
+        const response = await fetch("http://192.168.68.103:5000/api/medicines", { headers });
         const text = await response.text();
 
         let data: Medicine[];

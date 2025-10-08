@@ -9,4 +9,6 @@ const activitySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+activitySchema.index({ action: "text" });
+
 module.exports = mongoose.model("ActivityLog", activitySchema);

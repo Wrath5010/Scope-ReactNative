@@ -20,10 +20,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRo
   const router = useRouter();
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("userInfo");
-    await AsyncStorage.clear();
-    onClose();
-    router.replace("/StartUp");
+    try {
+      await AsyncStorage.clear(); 
+      onClose();
+      router.replace("/StartUp");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      Alert.alert("Error", "Failed to log out.");
+    }
   };
 
   const handleCreateUser = () => {
@@ -62,13 +66,19 @@ const SideMenu: React.FC<SideMenuProps> = ({ visible, onClose, menuItems, userRo
             {/* Show Create User ONLY if admin */}
             {["admin", "superadmin"].includes(userRole?.toLowerCase() || "") && (
               <Pressable style={styles.menuItem} onPress={handleCreateUser}>
-                <Text style={[styles.menuText, { color: "#00c8ff" }]}>Create User</Text>
+                <View style={styles.menuRow}>
+                  <Image source={require("@/assets/images/new-user.png")} style={styles.icon}></Image>
+                  <Text style={[styles.menuText, { color: "#00c8ff" }]}>Create User</Text>
+                </View>
               </Pressable>
             )}
 
             {["admin", "superadmin"].includes(userRole?.toLowerCase() || "") && (
               <Pressable style={styles.menuItem} onPress={() => router.push("/Users")}>
-                <Text style={[styles.menuText, { color: "#00c8ff" }]}>Users</Text>
+                <View style={styles.menuRow}>
+                  <Image source={require("@/assets/images/users.png")} style={styles.icon}></Image>
+                  <Text style={[styles.menuText, { color: "#00c8ff" }]}>Users</Text>
+                </View>
               </Pressable>
             )}
 
@@ -114,8 +124,8 @@ const styles = StyleSheet.create({
     alignItems: "center" 
   },
   icon: { 
-    width: 30, 
-    height: 30, 
+    width: 35, 
+    height: 35, 
     marginRight: 10, 
     resizeMode: "contain" 
   },

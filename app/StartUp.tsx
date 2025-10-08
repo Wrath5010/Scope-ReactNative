@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Image } from "react-native";
 
@@ -8,7 +8,8 @@ export default function Startpage() {
   const  router = useRouter();
 
   return (
-    <View style={styles.page}>
+    <ScrollView
+      contentContainerStyle={styles.page}>
       <View style={styles.container}>
         <Image source={require('@/assets/images/logo.png')} style={styles.logo}></Image>
       </View>
@@ -22,14 +23,14 @@ export default function Startpage() {
             </Pressable>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
-    flex: 1, // fill entire screen
-    backgroundColor: 'white'
+    flexGrow: 1,
+    backgroundColor: 'white',
   },
   container: {
     height: 480, // fixed height black area
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#252525",
     justifyContent: 'center',
     height: 60,
-    width: 300,
+    width: "80%",
     borderRadius: 12,
     alignItems: "center",
   },

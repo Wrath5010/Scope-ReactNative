@@ -5,17 +5,15 @@ const {
   deleteActivityLog,
 } = require("../controllers/activityController");
 
-const { protect } = require("../middleware/authMiddleware");
-
 const router = express.Router();
 
 // GET logs (optional query ?userId=)
-router.get("/", protect, getActivityLogs);
+router.get("/", getActivityLogs);
 
 // POST new log (internal use, protected)
-router.post("/", protect, createActivityLog);
+router.post("/", createActivityLog);
 
 // DELETE log by ID (admin only)
-router.delete("/:id", protect, deleteActivityLog);
+router.delete("/:id", deleteActivityLog);
 
 module.exports = router;

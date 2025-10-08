@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const connectDB = require("./config/db");
 
+const { protect, authorize } = require("./middleware/authMiddleware");
+
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const medicineRoutes = require("./routes/medicines");
@@ -19,10 +21,11 @@ connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/medicines", medicineRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/activity", activityRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/medicines", protect, medicineRoutes);
+app.use("/api/notifications", protect, notificationRoutes);
+app.use("/api/activity", protect, activityRoutes);
+app.use("/api/users", protect, authorize("admin"), userRoutes);
+
 
 // Default route
 app.get("/", (req, res) => res.send("Backend is running"));

@@ -30,8 +30,7 @@ export default function LoginScreen() {
     }
 
     try {
-      {/*Change localhost to computer's IP or phone IP */}
-      const response = await fetch("http://192.168.68.106:5000/api/auth/login", {
+      const response = await fetch("http://192.168.68.103:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -44,9 +43,8 @@ export default function LoginScreen() {
         return;
       }
 
-      // Save JWT to AsyncStorage
       await AsyncStorage.setItem("token", data.token);
-      // Save user info somewhere (AsyncStorage or context)
+
       await AsyncStorage.setItem("userInfo", JSON.stringify(data.user));
 
       // Navigate to dashboard

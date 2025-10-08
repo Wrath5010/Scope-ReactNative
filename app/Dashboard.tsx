@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, Image } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,7 +16,7 @@ export default function Dashboard() {
   // Load user from AsyncStorage
   useEffect(() => {
     const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem("userInfo");
+        const storedUser = await AsyncStorage.getItem("userInfo");
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   return (
     <SafeAreaView style={{ backgroundColor: "#252525", flex: 1 }}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
 
         {/* Header Row: hamburger + logo */}
         <View style={styles.rowcontainer}>
@@ -99,7 +99,7 @@ export default function Dashboard() {
             <Text style={styles.textbox}>Activity Log</Text>
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

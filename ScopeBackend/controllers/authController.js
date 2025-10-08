@@ -24,7 +24,6 @@ const registerUser = async (req, res) => {
   }
 };
 
-
 // Login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -49,7 +48,7 @@ const loginUser = async (req, res) => {
 const getProfile = async (req, res) => {
   const user = await User.findById(req.user.id).select("-password");
   if (user) res.json(user);
-  else res.status(404).json({ message: "User not found" });
+  else res.status(401).json({ message: "Not authorized" });
 };
 
 

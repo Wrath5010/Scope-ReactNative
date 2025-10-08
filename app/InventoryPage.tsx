@@ -71,7 +71,7 @@ export default function Inventory() {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch("http://192.168.68.106:5000/api/medicines", { headers });
+      const response = await fetch("http://192.168.68.103:5000/api/medicines", { headers });
       const text = await response.text();
 
       let data;
@@ -104,7 +104,7 @@ export default function Inventory() {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("Not authenticated");
 
-    const response = await fetch(`http://192.168.68.106:5000/api/medicines/${data._id}`, {
+    const response = await fetch(`http://192.168.68.103:5000/api/medicines/${data._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -150,7 +150,7 @@ export default function Inventory() {
       if (!token) throw new Error("Not authenticated");
 
       const response = await fetch(
-        `http://192.168.68.106:5000/api/medicines/${itemToDelete._id}`,
+        `http://192.168.68.103:5000/api/medicines/${itemToDelete._id}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -171,7 +171,7 @@ export default function Inventory() {
   const displayedData = useMemo(() => {
   let result = [...medicines];
 
-  // --- Handle special filters from Statistics Page ---
+  // Handle special filters from Statistics Page 
   if (filter === "lowStock") {
     result = result.filter((item) => item.stockQuantity <= 50);
   } else if (filter === "expired") {
@@ -183,14 +183,14 @@ export default function Inventory() {
     }
   }
 
-  // --- Search ---
+  // Search 
   if (searchQuery.trim() !== "") {
     result = result.filter((item) =>
       item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }
 
-  // --- Sort ---
+  // Sort 
   switch (selectedSort) {
     case "A-Z":
       result.sort((a, b) => a.name.localeCompare(b.name));
@@ -472,7 +472,7 @@ const lists = StyleSheet.create({
 
   },
   leftSection: { 
-    flex: 1, 
+    flex: 2, 
     justifyContent: "space-between", 
     gap: 5 },
   rightSection: { 
