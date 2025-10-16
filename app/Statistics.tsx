@@ -6,6 +6,7 @@ import { BarChart } from "react-native-gifted-charts";
 import NavigationBar from "@/components/ui/NavigationBar";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { URL } from "./utils/api";
 
 // === Types ===
 interface Medicine {
@@ -55,7 +56,7 @@ export default function Statistics() {
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const response = await fetch("http://192.168.68.103:5000/api/medicines", { headers });
+        const response = await fetch(`${URL}/medicines`, { headers });
         const text = await response.text();
 
         let data: Medicine[];

@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, Text, Pressable, StyleSheet, Alert, ScrollView, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -17,6 +10,7 @@ import NavigationBar from "@/components/ui/NavigationBar";
 import Confirmation from "@/components/ui/Confirmation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TextInput } from 'react-native-paper';
+import { URL } from "./utils/api";
 
 interface MedicineData {
   name: string;
@@ -80,9 +74,9 @@ export default function AddMedicine() {
   const handleAddMedicine = async () => {
   if (
     !name ||
-    category === "Category" ||
+    category === "Select" ||
     !price ||
-    dosage === "Select Formula" ||
+    dosage === "Select" ||
     !quantity ||
     !manufacturer ||
     !expiryDate
@@ -110,9 +104,9 @@ export default function AddMedicine() {
       expiryDate: expiryDate.toISOString(),
     };
 
-    console.log("Payload:", payload); // Debug: check before sending
+    console.log("Payload:", payload); // Debug
 
-    const response = await fetch("http://192.168.157.250:5000/api/medicines", {
+    const response = await fetch(`${URL}/medicines`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -171,7 +165,7 @@ export default function AddMedicine() {
 
         <TextInput
           style={styles.input}
-          placeholder="Manufacturer Name"
+          placeholder="Manufacturer"
           placeholderTextColor="#888"
           value={manufacturer}
           onChangeText={setManufacturer}
@@ -195,7 +189,7 @@ export default function AddMedicine() {
 
           <TextInput
             style={styles.quantityInput}
-            placeholder="Quantity"
+            placeholder="Qty."
             placeholderTextColor="#888"
             keyboardType="numeric"
             value={quantity}

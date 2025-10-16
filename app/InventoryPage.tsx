@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ import DeleteModal from "@/components/ui/DeleteModal";
 import UpdateModal from "@/components/ui/UpdateModal";
 import FilterModal from "@/components/ui/FilterModal";
 import SortModal from "@/components/ui/SortModal";
+import { URL } from "./utils/api";
 
 const categories = [
   "All", "Antibiotics", "Painkillers", "Cough & Cold", "Allergy", 
@@ -40,15 +41,15 @@ export default function Inventory() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [selectedSort, setSelectedSort] = useState("None");
   const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Delete modal state
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Medicine | null>(null);
   
   const { deleteMode } = useLocalSearchParams<{ deleteMode?: string }>();
-  //Global delete (still working on it)
+  //Global delete (deciding)
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Medicine | null>(null);
@@ -67,11 +68,12 @@ export default function Inventory() {
   // Fetch Medicine
   const fetchMedicines = async () => {
     try {
+      setLoading(true)
       const token = await AsyncStorage.getItem("token");
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch("http://192.168.68.103:5000/api/medicines", { headers });
+      const response = await fetch(`${URL}/medicines`, { headers });
       const text = await response.text();
 
       let data;
@@ -94,6 +96,9 @@ export default function Inventory() {
         Alert.alert("Error", "An unknown error occurred while fetching medicines.");
       }
     }
+    finally{
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchMedicines(); }, []);
@@ -104,7 +109,7 @@ export default function Inventory() {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("Not authenticated");
 
-    const response = await fetch(`http://192.168.68.103:5000/api/medicines/${data._id}`, {
+    const response = await fetch(`${URL}/medicines/${data._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -129,13 +134,6 @@ export default function Inventory() {
 
   useEffect(() => { if (deleteMode === "true") setIsDeleteMode(true); }, [deleteMode]);
 
-  // === CANCEL DELETE MODE ===
-  const cancelDeleteMode = () => {
-    setIsDeleteMode(false);
-    setSelectedItems([]);
-    router.replace("/InventoryPage"); // go back without query
-  };
-
   // === DELETE HANDLERS ===
   const handleDeletePress = (item: Medicine) => {
     setItemToDelete(item);
@@ -150,7 +148,7 @@ export default function Inventory() {
       if (!token) throw new Error("Not authenticated");
 
       const response = await fetch(
-        `http://192.168.68.103:5000/api/medicines/${itemToDelete._id}`,
+        `${URL}/medicines/${itemToDelete._id}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -288,12 +286,15 @@ export default function Inventory() {
           </Text>
         )}
 
+        {/* Loading */}
+        {loading && <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />}
 
         {/* MEDICINE LIST */}
         <FlatList
           data={displayedData}
           keyExtractor={(item) => item._id}
           style={{ marginTop: 55 }}
+          refreshing={loading}
           contentContainerStyle={{ paddingBottom: 300 }}
           renderItem={({ item }: { item: Medicine }) => {
             const today = new Date();

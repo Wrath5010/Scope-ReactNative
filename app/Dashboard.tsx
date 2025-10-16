@@ -27,7 +27,6 @@ export default function Dashboard() {
 
   const menuItems = [
     { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png") },
-    { label: "Delete Medicine", onPress: () => router.push("/InventoryPage?deletemode=true"), icon: require("@/assets/images/Delete-medicine.png") },
     { label: "Inventory", onPress: () => router.push("/InventoryPage"), icon: require("@/assets/images/Inventory.png") },
     { label: "Notification", onPress: () => router.push("/Notification"), icon: require("@/assets/images/Notification.png") },
     { label: "Statistics", onPress: () => router.push("/Statistics"), icon: require("@/assets/images/Statistics.png") },
@@ -70,10 +69,11 @@ export default function Dashboard() {
             <Text style={styles.textbox}>Add medicine</Text>
           </Pressable>
 
-          <Pressable style={styles.boxes} onPress={() => router.push("/InventoryPage?deletemode=true")}>
-            <Image source={require("@/assets/images/Delete-medicine.png")} style={styles.icons} />
-            <Text style={styles.textbox}>Delete medicine</Text>
+          <Pressable style={styles.boxes} onPress={() => router.push("/InventoryPage")}>
+            <Image source={require("@/assets/images/Inventory.png")} style={styles.icons} />
+            <Text style={styles.textbox}>Inventory</Text>
           </Pressable>
+
         </View>
 
         <View style={styles.row}>
@@ -82,17 +82,13 @@ export default function Dashboard() {
             <Text style={styles.textbox}>Notification</Text>
           </Pressable>
 
-          <Pressable style={styles.boxes} onPress={() => router.push("/InventoryPage")}>
-            <Image source={require("@/assets/images/Inventory.png")} style={styles.icons} />
-            <Text style={styles.textbox}>Inventory</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.row}>
           <Pressable style={styles.boxes} onPress={() => router.push("/Statistics")}>
             <Image source={require("@/assets/images/Statistics.png")} style={styles.icons} />
             <Text style={styles.textbox}>Statistics</Text>
           </Pressable>
+        </View>
+
+        <View style={styles.rowsec}>
 
           <Pressable style={styles.boxes} onPress={() => router.push("/Activitylog")}>
             <Image source={require("@/assets/images/Activity-Log.png")} style={styles.icons} />
@@ -145,7 +141,13 @@ const styles = StyleSheet.create({
   },
   row: { 
     flexDirection: "row", 
-    justifyContent: "space-between",  
+    justifyContent: "space-around",  
+    padding: 10,
+    paddingHorizontal: 20
+  },
+  rowsec:{
+    flexDirection: "row", 
+    justifyContent: "center",  
     padding: 10,
     paddingHorizontal: 20
   },

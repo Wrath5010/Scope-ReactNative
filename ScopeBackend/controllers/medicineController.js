@@ -1,5 +1,7 @@
 const InventoryMedicine = require("../models/InventoryMedicine");
 const ActivityLog = require("../models/ActivityLog");
+const Notification = require("../models/Notification");
+
 
 // GET all medicines
 const getMedicines = async (req, res) => {
@@ -91,10 +93,57 @@ const deleteMedicine = async (req, res) => {
   }
 };
 
+// Check all medicines for upcoming expiry
+const checkExpiryForAll = async (req, res) => {
+  try {
+    const today = new Date();
+    const EXPIRY_THRESHOLD_DAYS = 30; // Medicines expiring within 30 days
+    const medicines = await InventoryMedicine.find({ expiryDate: { $exists: true } });
+
+    let createdNotifications = [];
+
+    for (const med of medicines) {
+      const expiryDate = new Date(med.expiryDate);
+      const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+      // Skip medicines already expired
+      if (diffDays < 0) continue;
+
+      // Only create notifications for medicines within threshold
+      if (diffDays <= EXPIRY_THRESHOLD_DAYS) {
+        const existing = await Notification.findOne({
+          medicineId: med._id,
+          type: "expiry",
+          read: false,
+        });
+
+        if (!existing) {
+          const note = await Notification.create({
+            medicineId: med._id,
+            message: `${med.name} will expire in ${diffDays} day${diffDays > 1 ? 's' : ''}.`,
+            type: "expiry",
+          });
+          createdNotifications.push(note);
+        }
+      }
+    }
+
+    res.json({
+      message: "Expiry check completed",
+      newNotifications: createdNotifications.length,
+      createdNotifications,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 module.exports = {
   getMedicines,
   getMedicineById,
   createMedicine,
   updateMedicine,
   deleteMedicine,
+  checkExpiryForAll
 };

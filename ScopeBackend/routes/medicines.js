@@ -5,18 +5,22 @@ const {
   createMedicine,
   updateMedicine,
   deleteMedicine,
+  checkExpiryForAll
 } = require("../controllers/medicineController");
-const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+// Check expiry for all medicines
+router.get("/check-expiry", checkExpiryForAll);
 
 // Public: GET all / single
 router.get("/", getMedicines);
 router.get("/:id", getMedicineById);
 
 // Protected: create, update, delete
-router.post("/", protect, createMedicine);
-router.put("/:id", protect, updateMedicine);
-router.delete("/:id", protect, deleteMedicine);
+router.post("/", createMedicine);
+router.put("/:id", updateMedicine);
+router.delete("/:id", deleteMedicine);
 
+//these are all protected, check server.js
 module.exports = router;

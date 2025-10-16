@@ -3,19 +3,15 @@ const {
   getNotifications,
   getNotificationById,
   markAsRead,
-  deleteNotification,
+  checkMedicinesForNotifications,
 } = require("../controllers/notificationController");
-
-const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Public or protected depending on your app
-router.get("/", protect, getNotifications);
-router.get("/:id", protect, getNotificationById);
+router.get("/", getNotifications);
+router.get("/:id", getNotificationById);
+router.patch("/:id/read", markAsRead);
 
-// Mark as read and delete require protection
-router.patch("/:id/read", protect, markAsRead);
-router.delete("/:id", protect, deleteNotification);
+router.get("/check/all", checkMedicinesForNotifications);
 
 module.exports = router;

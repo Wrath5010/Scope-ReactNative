@@ -27,7 +27,6 @@ export default function NavigationBar() {
   // Side menu items (with icons)
   const menuItems = [
     { label: "Add Medicine", onPress: () => router.push("/AddMedicine"), icon: require("@/assets/images/add-medicine.png"),  },
-    { label: "Delete Medicine", onPress: () => router.push("/InventoryPage?deletemode=true"), icon: require("@/assets/images/Delete-medicine.png") },
     { label: "Inventory", onPress: () => router.push("/InventoryPage"), icon: require("@/assets/images/Inventory.png") },
     { label: "Notification", onPress: () => router.push("/Notification"), icon: require("@/assets/images/Notification.png") },
     { label: "Statistics", onPress: () => router.push("/Statistics"), icon: require("@/assets/images/Statistics.png") },

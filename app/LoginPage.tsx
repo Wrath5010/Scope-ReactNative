@@ -1,22 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  Alert,
-  Image,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
+import { View, Text,  TextInput, Pressable, StyleSheet, Alert, Image,  SafeAreaView, KeyboardAvoidingView, ScrollView, Platform, TouchableWithoutFeedback, Keyboard,} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { URL } from "./utils/api";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -30,7 +17,7 @@ export default function LoginScreen() {
     }
 
     try {
-      const response = await fetch("http://192.168.68.103:5000/api/auth/login", {
+      const response = await fetch(`${URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

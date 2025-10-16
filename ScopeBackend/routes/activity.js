@@ -1,9 +1,5 @@
 const express = require("express");
-const {
-  getActivityLogs,
-  createActivityLog,
-  deleteActivityLog,
-} = require("../controllers/activityController");
+const { getActivityLogs, createActivityLog, deleteActivityLog,} = require("../controllers/activityController");
 
 const router = express.Router();
 

@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { View, Text, FlatList, Pressable, StyleSheet, Alert,} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UpdateUserModal from "@/components/ui/UpdateUserModal";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { URL } from "./utils/api";
 
 interface User {
   _id: string;
@@ -33,7 +27,7 @@ export default function Users() {
       const token = await AsyncStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch(`http://192.168.68.103:5000/api/users`, {
+      const res = await fetch(`${URL}/users`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -79,7 +73,7 @@ export default function Users() {
               if (!token) return;
 
               const res = await fetch(
-                `http://192.168.68.103:5000/api/users/${user._id}`,
+                `${URL}/users/${user._id}`,
                 {
                   method: "DELETE",
                   headers: { Authorization: `Bearer ${token}` },
@@ -163,7 +157,7 @@ export default function Users() {
 
                 // Call backend to update user
                 const res = await fetch(
-                  `http://192.168.68.103:5000/api/users/${updatedUser._id}`,
+                  `${URL}/users/${updatedUser._id}`,
                   {
                     method: "PUT",
                     headers: {
@@ -242,7 +236,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
     gap: 15,
-    width: "95%"
+    width: "95%",
+    flexWrap: 'wrap'
   },
   username: {
     fontWeight: "700",
@@ -263,7 +258,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
-    gap: 10,
+    gap: 5,
   },
   updateBtn: {
     backgroundColor: "#e6f8ff",

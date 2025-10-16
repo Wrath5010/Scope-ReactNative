@@ -37,12 +37,43 @@ export default function FilterModal({ visible, options, selectedOption, onSelect
 }
 
 const styles = StyleSheet.create({
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.79)", justifyContent: "center", alignItems: "center" },
-  modalBox: { width: 320, backgroundColor: "white", borderRadius: 12, padding: 20 },
-  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 15 },
-  chipContainer: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  chip: { paddingVertical: 8, paddingHorizontal: 14, backgroundColor: "#f0f0f0", borderRadius: 20 },
-  chipSelected: { backgroundColor: "#252525" },
-  chipText: { fontSize: 16, color: "#333" },
-  chipTextSelected: { color: "white", fontWeight: "bold" },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: "rgba(0,0,0,0.79)", 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
+  modalBox: { 
+    width: 320, 
+    backgroundColor: "white", 
+    borderRadius: 12, 
+    padding: 20 
+  },
+  modalTitle: { 
+    fontSize: 20, 
+    fontWeight: "bold", 
+    marginBottom: 15 
+  },
+  chipContainer: { 
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    gap: 10 
+  },
+  chip: { 
+    paddingVertical: 8, 
+    paddingHorizontal: 14, 
+    backgroundColor: "#f0f0f0", 
+    borderRadius: 20 
+  },
+  chipSelected: { 
+    backgroundColor: "#252525" 
+  },
+  chipText: { 
+    fontSize: 16, 
+    color: "#333" 
+  },
+  chipTextSelected: { 
+    color: "white", 
+    fontWeight: "bold" 
+  },
 });

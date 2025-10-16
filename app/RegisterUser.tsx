@@ -1,18 +1,12 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import NavigationBar from "@/components/ui/NavigationBar";
 import Confirmation from "@/components/ui/Confirmation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { URL } from "./utils/api";
 
 // Define the UserData type (making it simple, only pharmacists added and one admin)
 type UserData = {
@@ -45,11 +39,13 @@ export default function RegisterUser() {
     }
 
     try {
+      const token = await AsyncStorage.getItem("token");
+
       const response = await fetch(
-        "http://192.168.157.250:5000/api/auth/register",
+        `${URL}/auth/register`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`},
           body: JSON.stringify(userData),
         }
       );
