@@ -6,7 +6,7 @@ const connectDB = require("./config/db");
 
 const { protect, authorize } = require("./middleware/authMiddleware");
 
-require("./utils/cronJobs");
+require("./utils/cron");
 
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");

@@ -32,11 +32,11 @@ interface MedicineDetails {
 // Activity log interface
 interface Activity {
   _id: string;
-  userId: ActivityUser | string | null; // may be null
+  userId: ActivityUser | string | null;
   action: string;
   entity: string;
   entityId: string;
-  details?: MedicineDetails; // optional medicine details
+  details?: MedicineDetails; // optional medicine details (maybe some details)
   createdAt: string;
 }
 

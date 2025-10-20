@@ -1,17 +1,30 @@
 const express = require("express");
+const router = express.Router();
 const {
   getNotifications,
   getNotificationById,
   markAsRead,
-  checkMedicinesForNotifications,
+  checkNotifications,
+  reactivateOldNotifications,
+  cleanupReadNotifications,
 } = require("../controllers/notificationController");
 
-const router = express.Router();
-
+// --- Fetch all notifications ---
 router.get("/", getNotifications);
+
+// --- Fetch single notification by ID ---
 router.get("/:id", getNotificationById);
+
+// --- Mark a notification as read ---
 router.patch("/:id/read", markAsRead);
 
-router.get("/check/all", checkMedicinesForNotifications);
+// --- Manual trigger: check medicines and create notifications ---
+router.post("/check", checkNotifications);
+
+// --- Manual trigger: reactivate ignored notifications ---
+router.post("/reactivate", reactivateOldNotifications);
+
+// --- Manual trigger: cleanup old read notifications ---
+router.post("/cleanup", cleanupReadNotifications);
 
 module.exports = router;

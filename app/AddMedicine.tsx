@@ -86,7 +86,6 @@ export default function AddMedicine() {
   }
 
   try {
-    // Get JWT token from AsyncStorage
     const token = await AsyncStorage.getItem("token");
     if (!token) {
       Alert.alert("Error", "You must be logged in to add medicine.");

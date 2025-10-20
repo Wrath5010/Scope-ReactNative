@@ -24,7 +24,7 @@ export default function RegisterUser() {
   const [password, setPassword] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // All users added through this form will be pharmacists
+  // All created users will be pharmacists
   const userData: UserData = { 
     fullName, 
     email, 
