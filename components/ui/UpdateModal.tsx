@@ -153,18 +153,6 @@ export default function UpdateModal({
 
             <View style={styles.rowContainer}>
               <TextInput
-                style={styles.priceInput}
-                placeholder="$ Price"
-                keyboardType="numeric"
-                value={price}
-                onChangeText={setPrice}
-                mode="outlined"
-                outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
-                theme={{ colors: { text: "black", placeholder: "#888" },}} 
-                left={<TextInput.Affix text="$" />}
-              />
-
-              <TextInput
                 style={styles.quantityInput}
                 placeholder={dosageUnits[dosage] || "Quantity"}
                 keyboardType="numeric"
@@ -174,6 +162,18 @@ export default function UpdateModal({
                 outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
                 theme={{ colors: { text: "black", placeholder: "#888" },}} 
                 left={<TextInput.Affix text={dosageUnits[dosage] || ""} />}
+              />
+
+              <TextInput
+                style={styles.priceInput}
+                placeholder="$ Price"
+                keyboardType="numeric"
+                value={price}
+                onChangeText={setPrice}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
+                theme={{ colors: { text: "black", placeholder: "#888" },}} 
+                left={<TextInput.Affix text="$" />}
               />
             </View>
 

@@ -11,7 +11,7 @@ import {
 interface UpdateUserModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (data: { _id: string; fullName: string; email: string; password?: string }) => void;
+  onSave: (data: { _id: string; name: string; email: string; password?: string }) => void;
   initialData: {
     _id: string;
     name: string;
@@ -39,13 +39,14 @@ export default function UpdateUserModal({
   }, [initialData]);
 
   const handleSave = () => {
-    if (!fullName || !email) {
+    if (!fullName.trim() || !email.trim()) {
       alert("Please fill in all required fields.");
       return;
     }
+
     onSave({
       _id: initialData._id,
-      fullName,
+      name: fullName, // <-- map fullName to 'name' for backend
       email,
       password: password || undefined,
     });

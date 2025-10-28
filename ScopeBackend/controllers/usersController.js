@@ -24,17 +24,17 @@ const getUserById = async (req, res) => {
 //Update User
 const updateUser = async (req, res) => {
   try {
-    const { fullName, email, role, password } = req.body;
+    const { name, email, role, password } = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (fullName) user.fullName = fullName;
+    if (name) user.name = name;       
     if (email) user.email = email;
     if (role) user.role = role;
-    if (password) user.password = password; // pre('save') will hash it automatically
+    if (password) user.password = password; 
 
-    await user.save(); // triggers pre('save') hook for hashing
+    await user.save(); 
 
     const userObj = user.toObject();
     delete userObj.password; // remove password from response

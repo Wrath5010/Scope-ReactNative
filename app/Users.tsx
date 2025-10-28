@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Pressable, StyleSheet, Alert,} from "react-native";
+import { View, Text, FlatList, Pressable, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UpdateUserModal from "@/components/ui/UpdateUserModal";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -72,13 +72,10 @@ export default function Users() {
               const token = await AsyncStorage.getItem("token");
               if (!token) return;
 
-              const res = await fetch(
-                `${URL}/users/${user._id}`,
-                {
-                  method: "DELETE",
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              );
+              const res = await fetch(`${URL}/users/${user._id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              });
 
               if (!res.ok) {
                 const err = await res.json();
@@ -144,7 +141,6 @@ export default function Users() {
           )}
         />
 
-        {/*If enough time, add a previous pass THEN New password */}
         {editingUser && (
           <UpdateUserModal
             visible={updateModalVisible}
@@ -155,24 +151,18 @@ export default function Users() {
                 const token = await AsyncStorage.getItem("token");
                 if (!token) return;
 
-                // Call backend to update user
-                const res = await fetch(
-                  `${URL}/users/${updatedUser._id}`,
-                  {
-                    method: "PUT",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                      fullName: updatedUser.fullName,
-                      email: updatedUser.email,
-                      ...(updatedUser.password
-                        ? { password: updatedUser.password }
-                        : {}),
-                    }),
-                  }
-                );
+                const res = await fetch(`${URL}/users/${updatedUser._id}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    name: updatedUser.name, 
+                    email: updatedUser.email,
+                    ...(updatedUser.password ? { password: updatedUser.password } : {}),
+                  }),
+                });
 
                 const data = await res.json();
                 if (!res.ok) {
@@ -183,7 +173,7 @@ export default function Users() {
                 setUsers(
                   users.map((u) =>
                     u._id === updatedUser._id
-                      ? { ...u, fullName: updatedUser.fullName, email: updatedUser.email }
+                      ? { ...u, name: updatedUser.name, email: updatedUser.email } 
                       : u
                   )
                 );
@@ -201,28 +191,28 @@ export default function Users() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    paddingHorizontal: 10,
+  container: { 
+    flex: 1, 
+    alignItems: "center", 
+    paddingHorizontal: 10 
   },
-  backBtn: {
-    position: "absolute",
-    top: 28,
-    left: 20,
-    padding: 8,
-    zIndex: 10,
+  backBtn: { 
+    position: "absolute", 
+    top: 28, 
+    left: 20, 
+    padding: 8, 
+    zIndex: 10 
   },
-  title: {
-    alignSelf: 'center',
-      marginTop: 35,
-      marginBottom: 35,
-      fontSize: 26,
-      color: 'white',
-      fontWeight: 'bold'
+  title: { 
+    alignSelf: "center", 
+    marginTop: 35, 
+    marginBottom: 35, 
+    fontSize: 26, 
+    color: "white", 
+    fontWeight: "bold" 
   },
   userItem: {
-    alignSelf: 'center',
+    alignSelf: "center",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -237,49 +227,49 @@ const styles = StyleSheet.create({
     elevation: 3,
     gap: 15,
     width: "95%",
-    flexWrap: 'wrap'
+    flexWrap: "wrap",
   },
-  username: {
-    fontWeight: "700",
-    fontSize: 17,
-    color: "#222222",
-    marginBottom: 4,
+  username: { 
+    fontWeight: "700", 
+    fontSize: 17, 
+    color: "#222222", 
+    marginBottom: 4 
   },
-  email: {
-    fontSize: 14,
-    color: "#666666",
-    marginBottom: 2,
+  email: { 
+    fontSize: 14, 
+    color: "#666666", 
+    marginBottom: 2 
   },
-  role: {
-    fontSize: 13,
-    color: "#00c8ff",
-    fontWeight: "500",
-    textTransform: "capitalize",
+  role: { 
+    fontSize: 13, 
+    color: "#00c8ff", 
+    fontWeight: "500", 
+    textTransform: "capitalize" 
   },
-  buttons: {
-    flexDirection: "row",
-    gap: 5,
+  buttons: { 
+    flexDirection: "row", 
+    gap: 5 
   },
-  updateBtn: {
-    backgroundColor: "#e6f8ff",
-    borderWidth: 1,
-    borderColor: "#00c8ff",
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 10,
+  updateBtn: { 
+    backgroundColor: "#e6f8ff", 
+    borderWidth: 1, 
+    borderColor: "#00a6e83e", 
+    paddingVertical: 6, 
+    paddingHorizontal: 14, 
+    borderRadius: 10 
   },
-  btnTextupdate: {
-    color: "#00a6e8",
-    fontWeight: "600",
+  btnTextupdate: { 
+    color: "#00a6e8", 
+    fontWeight: "600" 
   },
-  deleteBtn: {
-    backgroundColor: "#dc3939",
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 10,
+  deleteBtn: { 
+    backgroundColor: "#dc3939", 
+    paddingVertical: 6, 
+    paddingHorizontal: 14, 
+    borderRadius: 10 
   },
-  btnText: {
-    color: "#fff",
-    fontWeight: "600",
+  btnText: { 
+    color: "#fff", 
+    fontWeight: "600" 
   },
 });

@@ -1,2 +1,2 @@
 //make fetching quicker
-export const URL = "http://192.168.68.117:5000/api";
+export const URL = "http://192.168.68.106:5000/api";

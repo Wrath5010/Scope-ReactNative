@@ -167,7 +167,6 @@ export default function Notification() {
             data={filteredNotifications}
             keyExtractor={(item) => item._id}
             refreshing={loading}
-            onRefresh={fetchNotifications}
             renderItem={({ item }) => (
               <View
                 style={[

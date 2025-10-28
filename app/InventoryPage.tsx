@@ -328,7 +328,7 @@ export default function Inventory() {
               <View style={lists.leftSection}>
                 <Text style={lists.itemName}>{item.name}</Text>
                 <Text style={lists.itemText}>Category: {item.category}</Text>
-                <Text style={lists.itemText}>Dosage: {item.dosage ?? "-"}</Text>
+                <Text style={lists.itemText}>Amount: {item.dosage ?? "-"}</Text>
                 <Text style={lists.itemText}>Manufacturer: {item.manufacturer ?? "-"}</Text>
               </View>
 
@@ -493,7 +493,7 @@ const lists = StyleSheet.create({
   updateBtn: {
     backgroundColor: "#e6f8ff",
     borderWidth: 1,
-    borderColor: "#00c8ff",
+    borderColor: "#00a6e83e",
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 10,

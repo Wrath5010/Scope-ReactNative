@@ -38,13 +38,13 @@ export default function Statistics() {
 
   //Adding space after abbreviation works as a gap between the bar and x axis(x is vertical), x styling dont work...
   const categoryAbbr: Record<string, string> = {
-    "Antibiotics": "ABX ",
-    "Painkillers": "Pain ",
-    "Cough & Cold": "C&C ",
-    "Allergy": "Allergy    ",
-    "Vitamins & Supplements": "Vits ",
-    "Digestive Health": "Digest    ",
-    "Skin Care": "Skin ",
+    "Antibiotics": "ABX",
+    "Painkillers": "Pain",
+    "Cough & Cold": "C&C",
+    "Allergy": "Allergy",
+    "Vitamins & Supplements": "Vits",
+    "Digestive Health": "Digest",
+    "Skin Care": "Skin",
     "Cardiovascular": "CV",
     "Diabetes": "Diab",
   };
@@ -78,7 +78,7 @@ export default function Statistics() {
           value,
           label: categoryAbbr[category] ?? category,
           frontColor: colors[index % colors.length],
-          labelTextStyle: { color: "#fff", fontSize: 11 },
+          labelTextStyle: { color: "#fff", fontSize: 11, textAlign: "right", marginRight: 15 },
         }));
 
         setBarData(chartData);
@@ -141,6 +141,7 @@ export default function Statistics() {
               color: "#fff",
               fontSize: 12,
               fontWeight: "500",
+              textAlign: "left"
             }}
           />
         </View>

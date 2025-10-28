@@ -129,6 +129,7 @@ export default function AddMedicine() {
     }
 
     Alert.alert("Success", "Medicine added successfully!");
+    setShowConfirmModal(false)
     router.push("/InventoryPage");
   } catch (err: unknown) {
     if (err instanceof Error) {
@@ -188,7 +189,7 @@ export default function AddMedicine() {
 
           <TextInput
             style={styles.quantityInput}
-            placeholder="Qty."
+            placeholder="Amount"
             placeholderTextColor="#888"
             keyboardType="numeric"
             value={quantity}
