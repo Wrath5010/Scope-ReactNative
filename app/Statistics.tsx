@@ -162,7 +162,7 @@ export default function Statistics() {
             <Text style={styles.summaryValue}>
               {loading ? "..." : totalMedicines}
             </Text>
-            <Text style={styles.textlink}>Press to Inventory</Text>
+            <Text style={styles.textlink}>Check Inventory</Text>
           </Pressable>
 
           <Pressable style={styles.summaryBox} onPress={() => router.push({ pathname: "/InventoryPage", params: { filter: "lowStock" }})}>
@@ -171,7 +171,7 @@ export default function Statistics() {
             <Text style={styles.summaryValue}>
               {loading ? "..." : lowStockCount}
             </Text>
-            <Text style={styles.textlink}>Press to Check</Text>
+            <Text style={styles.textlink}>Check Low Stock</Text>
           </Pressable>
 
           <Pressable style={styles.summaryBox} onPress={() => router.push({ pathname: "/InventoryPage", params: { filter: "expired" }})}>
@@ -180,7 +180,7 @@ export default function Statistics() {
             <Text style={styles.summaryValue}>
               {loading ? "..." : expiredCount}
             </Text>
-            <Text style={styles.textlink}>Press to Check</Text>
+            <Text style={styles.textlink}>Check Products</Text>
           </Pressable>
         </View>
 

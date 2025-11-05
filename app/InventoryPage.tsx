@@ -293,7 +293,7 @@ export default function Inventory() {
         <FlatList
           data={displayedData}
           keyExtractor={(item) => item._id}
-          style={{ marginTop: 55 }}
+          style={{ marginTop: filter === "expired" || filter === "lowStock" ? 5 : 55  }}
           refreshing={loading}
           contentContainerStyle={{ paddingBottom: 300 }}
           renderItem={({ item }: { item: Medicine }) => {
