@@ -114,7 +114,7 @@ export default function Statistics() {
           <Ionicons name="arrow-back" size={28} color="white" />
         </Pressable>
 
-        <Text style={styles.title}>Inventory Statistics</Text>
+        <Text style={styles.title}>Statistics</Text>
 
         <View style={styles.barContainer}>
           <Text style={styles.chartTitle}>Stock by Categories</Text>

@@ -195,7 +195,7 @@ export default function AddMedicine() {
             value={quantity}
             onChangeText={setQuantity}
             mode="outlined"
-            right={<TextInput.Affix text={dosageUnits[dosage] || ""} />}
+            right={<TextInput.Affix text={dosageUnits[dosage] || " "} />}
             outlineStyle={{ borderRadius: 12, borderColor: "#252525", borderWidth: 2 }} 
             theme={{ colors: { text: "black", placeholder: "#888" } }} 
           />
